@@ -113,7 +113,6 @@
       background: #FEF2F2; color: var(--crimson); border: 1px solid #FECACA;
       border-radius: 10px; padding: 10px 13px; font-size: 12.5px; font-weight: 600; margin-bottom: 18px;
     }
-    .login-hint { margin-top: 22px; font-size: 11.5px; color: var(--text-faint); text-align: center; }
 
     @media (max-width: 780px) {
       .auth-wrap { grid-template-columns: 1fr; max-width: 420px; }
@@ -172,8 +171,6 @@
       </div>
 
       <button type="submit" class="btn-signin"><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In</button>
-
-      <p class="login-hint">Seeded login &mdash; admin@zamzamestate.pk / admin12345</p>
     </form>
   </div>
 
