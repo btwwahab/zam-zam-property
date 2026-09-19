@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="zzGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ADE80"/>
+      <stop offset="50%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+    <linearGradient id="zzShine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#DCFCE7"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0B2E1E"/>
+  <g transform="translate(4.4,5.3) scale(0.92)">
+    <path d="M 30 2 L 56 16 L 56 42 L 30 56 L 4 42 L 4 16 Z" fill="none" stroke="url(#zzGrad)" stroke-width="2.5" opacity="0.9"/>
+    <path d="M 16 18 L 34 18 L 18 34 L 34 34" fill="none" stroke="url(#zzShine)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 26 24 L 44 24 L 28 40 L 44 40" fill="none" stroke="url(#zzGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <polygon points="30,27 33,30 30,33 27,30" fill="url(#zzShine)"/>
+  </g>
+</svg>
