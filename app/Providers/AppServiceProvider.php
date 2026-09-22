@@ -3,9 +3,13 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Models\Enquiry;
 use App\Models\PageContent;
+use App\Models\PlotPackage;
 use App\Models\Project;
+use App\Models\Property;
 use App\Models\Setting;
+use App\Models\TeamMember;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -45,6 +49,23 @@ class AppServiceProvider extends ServiceProvider
                 ];
             }
             $view->with($shared);
+        });
+
+        // Sidebar item counts — only queried when the admin layout actually renders.
+        View::composer('layouts.admin', function ($view) {
+            static $counts = null;
+            if ($counts === null) {
+                $counts = [
+                    'propertiesCount' => Property::count(),
+                    'projectsCount' => Project::count(),
+                    'categoriesCount' => Category::count(),
+                    'plotPackagesCount' => PlotPackage::count(),
+                    'teamCount' => TeamMember::count(),
+                    'enquiriesCount' => Enquiry::count(),
+                    'newEnquiriesCount' => Enquiry::where('status', 'new')->count(),
+                ];
+            }
+            $view->with($counts);
         });
     }
 

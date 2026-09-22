@@ -29,14 +29,14 @@
       <a href="{{ route('admin.dashboard') }}" title="Dashboard" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="fa-solid fa-gauge-high"></i><span class="nav-text">Dashboard</span></a>
 
       <div class="nav-label">Catalogue</div>
-      <a href="{{ route('admin.properties.index') }}" title="Properties" class="{{ request()->routeIs('admin.properties.*') ? 'active' : '' }}"><i class="fa-solid fa-building"></i><span class="nav-text">Properties</span></a>
-      <a href="{{ route('admin.projects.index') }}" title="Projects" class="{{ request()->routeIs('admin.projects.*') ? 'active' : '' }}"><i class="fa-solid fa-diagram-project"></i><span class="nav-text">Projects</span></a>
-      <a href="{{ route('admin.categories.index') }}" title="Categories" class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}"><i class="fa-solid fa-layer-group"></i><span class="nav-text">Categories</span></a>
-      <a href="{{ route('admin.plot-packages.index') }}" title="Plot Packages" class="{{ request()->routeIs('admin.plot-packages.*') ? 'active' : '' }}"><i class="fa-solid fa-tags"></i><span class="nav-text">Plot Packages</span></a>
-      <a href="{{ route('admin.team.index') }}" title="Team" class="{{ request()->routeIs('admin.team.*') ? 'active' : '' }}"><i class="fa-solid fa-users"></i><span class="nav-text">Team</span></a>
+      <a href="{{ route('admin.properties.index') }}" title="Properties" class="{{ request()->routeIs('admin.properties.*') ? 'active' : '' }}"><i class="fa-solid fa-building"></i><span class="nav-text">Properties</span><span class="nav-count">{{ $propertiesCount }}</span></a>
+      <a href="{{ route('admin.projects.index') }}" title="Projects" class="{{ request()->routeIs('admin.projects.*') ? 'active' : '' }}"><i class="fa-solid fa-diagram-project"></i><span class="nav-text">Projects</span><span class="nav-count">{{ $projectsCount }}</span></a>
+      <a href="{{ route('admin.categories.index') }}" title="Categories" class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}"><i class="fa-solid fa-layer-group"></i><span class="nav-text">Categories</span><span class="nav-count">{{ $categoriesCount }}</span></a>
+      <a href="{{ route('admin.plot-packages.index') }}" title="Plot Packages" class="{{ request()->routeIs('admin.plot-packages.*') ? 'active' : '' }}"><i class="fa-solid fa-tags"></i><span class="nav-text">Plot Packages</span><span class="nav-count">{{ $plotPackagesCount }}</span></a>
+      <a href="{{ route('admin.team.index') }}" title="Team" class="{{ request()->routeIs('admin.team.*') ? 'active' : '' }}"><i class="fa-solid fa-users"></i><span class="nav-text">Team</span><span class="nav-count">{{ $teamCount }}</span></a>
 
       <div class="nav-label">Engagement</div>
-      <a href="{{ route('admin.enquiries.index') }}" title="Enquiries" class="{{ request()->routeIs('admin.enquiries.*') ? 'active' : '' }}"><i class="fa-solid fa-envelope"></i><span class="nav-text">Enquiries</span></a>
+      <a href="{{ route('admin.enquiries.index') }}" title="Enquiries" class="{{ request()->routeIs('admin.enquiries.*') ? 'active' : '' }}"><i class="fa-solid fa-envelope"></i><span class="nav-text">Enquiries</span><span class="nav-count {{ $newEnquiriesCount > 0 ? 'is-alert' : '' }}">{{ $enquiriesCount }}</span></a>
 
       <div class="nav-label">Configuration</div>
       <a href="{{ route('admin.settings.edit') }}" title="Site Settings" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}"><i class="fa-solid fa-gear"></i><span class="nav-text">Site Settings</span></a>
