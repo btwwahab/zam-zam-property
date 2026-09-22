@@ -85,13 +85,6 @@
                       @endif
                       <p class="small text-muted mb-3">Current inventory, pricing, payment plans and the on-ground status of facilities should be confirmed directly with the {{ $site->name }} sales office.</p>
                     </div>
-                    @if($p->packages->count())
-                      <div class="row g-3 mb-3">
-                        @foreach($p->packages as $pkg)
-                          <div class="col-12">@include('partials.plot-package-card', ['pkg' => $pkg])</div>
-                        @endforeach
-                      </div>
-                    @endif
                     <div class="d-flex flex-wrap gap-3 mt-2 pt-3 border-top">
                       <a href="{{ route('properties') }}?project={{ $p->slug }}" class="btn btn-gold"><i class="fa-solid {{ $isFarm ? 'fa-tree' : 'fa-building' }} me-1" aria-hidden="true"></i> {{ $isFarm ? 'Explore Farmhouse Land' : 'View ' . $p->name . ' Plots' }}</a>
                       <a href="{{ route('contact') }}" class="btn btn-outline-gold"><i class="fa-solid fa-headset me-1" aria-hidden="true"></i> Ask About Availability</a>
@@ -100,6 +93,17 @@
                 </div>
               </div>
             </div>
+
+            @if($p->packages->count())
+              <div class="mt-4">
+                <h3 class="h5 fw-bold text-navy mb-3">{{ $p->name }} — Available Plans</h3>
+                <div class="row g-4">
+                  @foreach($p->packages as $pkg)
+                    <div class="col-lg-4 col-md-6">@include('partials.plot-package-card', ['pkg' => $pkg])</div>
+                  @endforeach
+                </div>
+              </div>
+            @endif
           </div>
         @endforeach
       </div>
