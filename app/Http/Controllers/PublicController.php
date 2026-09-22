@@ -67,22 +67,38 @@ class PublicController extends Controller
         ]);
     }
 
+    private function decorateProject(Project $p, bool $flip = false): Project
+    {
+        $p->property_count = Property::where('project_slug', $p->slug)->count();
+        $p->img = $p->image ?: 'gated_community_aerial';
+        $p->is_farm = str_contains(strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug), 'farm')
+            || str_contains(strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug), 'orchard');
+        $p->sizes = Property::where('project_slug', $p->slug)->pluck('size')->unique()->filter()->values();
+        $p->flip = $flip;
+        $p->packages = PlotPackage::where('project_slug', $p->slug)->orderBy('sort_order')->get();
+
+        return $p;
+    }
+
     public function projects()
     {
-        $projects = Project::orderBy('sort_order')->get()->values()->map(function (Project $p, $i) {
-            $p->property_count = Property::where('project_slug', $p->slug)->count();
-            $p->img = $p->image ?: 'gated_community_aerial';
-            $p->is_farm = str_contains(strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug), 'farm')
-                || str_contains(strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug), 'orchard');
-            $p->sizes = Property::where('project_slug', $p->slug)->pluck('size')->unique()->filter()->values();
-            $p->flip = $i % 2 === 1;
-            $p->packages = PlotPackage::where('project_slug', $p->slug)->orderBy('sort_order')->get();
-            return $p;
-        });
+        $projects = Project::orderBy('sort_order')->get()->values()
+            ->map(fn (Project $p, $i) => $this->decorateProject($p, $i % 2 === 1));
 
         return view('public.projects', [
             'active' => 'projects',
             'projects' => $projects,
+        ]);
+    }
+
+    public function projectDetail(Request $request)
+    {
+        $project = Project::where('slug', $request->query('id'))->firstOrFail();
+        $this->decorateProject($project);
+
+        return view('public.project-detail', [
+            'active' => 'projects',
+            'project' => $project,
         ]);
     }
 

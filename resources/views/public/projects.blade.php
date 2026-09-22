@@ -73,7 +73,7 @@
                       <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                         <span class="badge-pill-tag {{ $isFarm ? 'navy' : 'gold' }}">{{ $p->location }}</span>
                       </div>
-                      <h2 class="fw-bold text-navy fs-2 mb-3">{{ $p->name }}</h2>
+                      <h2 class="fw-bold text-navy fs-2 mb-3"><a href="{{ route('project.detail') }}?id={{ $p->slug }}" class="text-navy text-decoration-none">{{ $p->name }}</a></h2>
                       <p class="text-muted mb-3">{{ $p->description }}</p>
                       @if($sizes->count())
                         <h3 class="h6 fw-bold text-navy mb-2">Available plot sizes</h3>
@@ -86,24 +86,14 @@
                       <p class="small text-muted mb-3">Current inventory, pricing, payment plans and the on-ground status of facilities should be confirmed directly with the {{ $site->name }} sales office.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-3 mt-2 pt-3 border-top">
-                      <a href="{{ route('properties') }}?project={{ $p->slug }}" class="btn btn-gold"><i class="fa-solid {{ $isFarm ? 'fa-tree' : 'fa-building' }} me-1" aria-hidden="true"></i> {{ $isFarm ? 'Explore Farmhouse Land' : 'View ' . $p->name . ' Plots' }}</a>
+                      <a href="{{ route('project.detail') }}?id={{ $p->slug }}" class="btn btn-gold"><i class="fa-solid fa-circle-info me-1" aria-hidden="true"></i> View Details{{ $p->packages->count() ? ' & Plans' : '' }}</a>
+                      <a href="{{ route('properties') }}?project={{ $p->slug }}" class="btn btn-outline-gold"><i class="fa-solid {{ $isFarm ? 'fa-tree' : 'fa-building' }} me-1" aria-hidden="true"></i> {{ $isFarm ? 'Explore Farmhouse Land' : 'View ' . $p->name . ' Plots' }}</a>
                       <a href="{{ route('contact') }}" class="btn btn-outline-gold"><i class="fa-solid fa-headset me-1" aria-hidden="true"></i> Ask About Availability</a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            @if($p->packages->count())
-              <div class="mt-4">
-                <h3 class="h5 fw-bold text-navy mb-3">{{ $p->name }} — Available Plans</h3>
-                <div class="row g-4">
-                  @foreach($p->packages as $pkg)
-                    <div class="col-lg-4 col-md-6">@include('partials.plot-package-card', ['pkg' => $pkg])</div>
-                  @endforeach
-                </div>
-              </div>
-            @endif
           </div>
         @endforeach
       </div>

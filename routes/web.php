@@ -21,6 +21,7 @@ Route::get('/index.html', [PublicController::class, 'home']);
 Route::get('/properties.html', [PublicController::class, 'properties'])->name('properties');
 Route::get('/property-detail.html', [PublicController::class, 'propertyDetail'])->name('property.detail');
 Route::get('/projects.html', [PublicController::class, 'projects'])->name('projects');
+Route::get('/project-detail.html', [PublicController::class, 'projectDetail'])->name('project.detail');
 Route::get('/about.html', [PublicController::class, 'about'])->name('about');
 Route::get('/contact.html', [PublicController::class, 'contact'])->name('contact');
 Route::get('/privacy.html', [PublicController::class, 'privacy'])->name('privacy');
