@@ -34,6 +34,16 @@
       <div class="fld"><label>Address (short)</label>
         <input type="text" name="address_short" value="{{ old('address_short', $setting->address_short) }}" maxlength="190" class="@error('address_short') has-err @enderror">
         @error('address_short')<span class="fld-err">{{ $message }}</span>@enderror</div>
+      <div class="fld"><label>Office latitude</label>
+        <input type="text" inputmode="decimal" name="latitude" value="{{ old('latitude', $setting->latitude) }}" placeholder="30.2508698" maxlength="12" class="@error('latitude') has-err @enderror">
+        @error('latitude')<span class="fld-err">{{ $message }}</span>@enderror</div>
+      <div class="fld"><label>Office longitude</label>
+        <input type="text" inputmode="decimal" name="longitude" value="{{ old('longitude', $setting->longitude) }}" placeholder="71.5685793" maxlength="12" class="@error('longitude') has-err @enderror">
+        @error('longitude')<span class="fld-err">{{ $message }}</span>@enderror</div>
+      <div class="fld col-span-2"><label>Google Maps link (office)</label>
+        <input type="url" name="maps_url" value="{{ old('maps_url', $setting->maps_url) }}" placeholder="https://www.google.com/maps/place/…" maxlength="500" class="@error('maps_url') has-err @enderror">
+        <small style="color:var(--text-soft)">In Google Maps: right-click the office pin to copy its coordinates (latitude, longitude), and use Share → Copy link for this field. They drive the map on the contact page and the location links in the footer and top bar.</small>
+        @error('maps_url')<span class="fld-err">{{ $message }}</span>@enderror</div>
       <div class="fld"><label>Facebook URL</label>
         <input type="url" name="facebook" value="{{ old('facebook', $setting->facebook) }}" placeholder="https://facebook.com/…" maxlength="255" class="@error('facebook') has-err @enderror">
         @error('facebook')<span class="fld-err">{{ $message }}</span>@enderror</div>

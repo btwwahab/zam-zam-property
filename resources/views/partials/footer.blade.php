@@ -37,7 +37,10 @@
       </div>
       <div class="col-lg-3 col-md-6">
         <h2 class="footer-title h5">Office</h2>
-        <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{ $site->address }}</span></div>
+        <div class="footer-contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><a href="{{ $site->maps_link }}" target="_blank" rel="noopener" title="Open our office location in Google Maps">{{ $site->address }}</a></div>
+        @if($site->hasPin())
+        <div class="footer-contact-item"><i class="fa-solid fa-route" aria-hidden="true"></i><a href="{{ $site->directions_link }}" target="_blank" rel="noopener">Get directions</a></div>
+        @endif
         <div class="footer-contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:{{ $site->phone_raw }}">{{ $site->phone }}</a></div>
         <div class="footer-contact-item"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><a href="{{ $waFooter }}" target="_blank" rel="noopener">Chat on WhatsApp</a></div>
       </div>

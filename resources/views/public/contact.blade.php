@@ -17,7 +17,7 @@
       <div class="row g-4 mb-5">
         @php
           $waHref = 'https://wa.me/' . $site->whatsapp . '?text=' . rawurlencode('Hello, I am interested in exploring property opportunities with ' . $site->name . ' in Multan. Please share the latest available options.');
-          $mapHref = 'https://maps.google.com/?q=' . urlencode($site->address_short);
+          $mapHref = $site->maps_link;
           $links = ['whatsapp' => $waHref, 'call' => 'tel:' . $site->phone_raw, 'map' => $mapHref];
         @endphp
         @foreach(pc_list('contact_cards') as $card)
@@ -112,9 +112,16 @@
             </div>
             @endif
             <div class="rounded-4 overflow-hidden mt-2 border" style="height: 240px;">
-              <iframe title="{{ $site->name }} area on Google Maps" src="https://www.google.com/maps?q={{ urlencode($site->address_short) }}&output=embed" width="100%" height="100%" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <iframe title="{{ $site->name }} {{ $site->hasPin() ? 'office' : 'area' }} on Google Maps" src="{{ $site->maps_embed }}" width="100%" height="100%" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
-            <p class="small text-muted mt-2 mb-0">Map shows the general area. Confirm the exact office location by phone before visiting.</p>
+            @if($site->hasPin())
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <a href="{{ $site->maps_link }}" class="btn btn-gold btn-sm" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot me-1" aria-hidden="true"></i> Open in Google Maps</a>
+                <a href="{{ $site->directions_link }}" class="btn btn-outline-gold btn-sm" target="_blank" rel="noopener"><i class="fa-solid fa-route me-1" aria-hidden="true"></i> Get directions</a>
+              </div>
+            @else
+              <p class="small text-muted mt-2 mb-0">Map shows the general area. Confirm the exact office location by phone before visiting.</p>
+            @endif
           </div>
         </div>
       </div>

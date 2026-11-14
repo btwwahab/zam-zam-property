@@ -10,6 +10,10 @@
   @endif
   @php
     $ld = ['@context' => 'https://schema.org', '@type' => 'RealEstateAgent', 'name' => $site->name, 'telephone' => $site->phone_raw, 'areaServed' => 'Multan, Punjab, Pakistan', 'address' => ['@type' => 'PostalAddress', 'streetAddress' => $site->address_short, 'addressLocality' => 'Multan', 'addressRegion' => 'Punjab', 'addressCountry' => 'PK']];
+    if ($site->hasPin()) {
+        $ld['geo'] = ['@type' => 'GeoCoordinates', 'latitude' => (float) $site->latitude, 'longitude' => (float) $site->longitude];
+        $ld['hasMap'] = $site->maps_link;
+    }
   @endphp
   <script type="application/ld+json">{!! json_encode($ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 @endsection

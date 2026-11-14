@@ -73,7 +73,7 @@
 </style>
 <div class="top-header d-none d-lg-block">
   <div class="container d-flex justify-content-between align-items-center">
-    <span><i class="fa-solid fa-location-dot text-gold me-2" aria-hidden="true"></i> {{ $site->address_short }}</span>
+    <a href="{{ $site->maps_link }}" target="_blank" rel="noopener" title="Open our office location in Google Maps"><i class="fa-solid fa-location-dot text-gold me-2" aria-hidden="true"></i> {{ $site->address_short }}</a>
     <a href="tel:{{ $site->phone_raw }}"><i class="fa-solid fa-phone text-gold me-2" aria-hidden="true"></i> {{ $site->phone }}</a>
   </div>
 </div>

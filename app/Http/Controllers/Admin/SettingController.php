@@ -47,6 +47,9 @@ class SettingController extends Controller
             'whatsapp' => 'nullable|string|max:40',
             'address' => 'nullable|string|max:500',
             'address_short' => 'nullable|string|max:190',
+            'latitude' => 'nullable|numeric|between:-90,90|required_with:longitude',
+            'longitude' => 'nullable|numeric|between:-180,180|required_with:latitude',
+            'maps_url' => 'nullable|url:http,https|max:500',
             'office_hours' => 'nullable|string|max:120',
             'facebook' => 'nullable|string|max:255',
             'instagram' => 'nullable|string|max:255',
@@ -62,6 +65,9 @@ class SettingController extends Controller
             'hero_video_file' => 'nullable|file|mimes:mp4,webm,ogg|max:61440',
             'hero_poster_file' => 'nullable|image|max:8192',
         ], [
+            'latitude.required_with' => 'Enter both latitude and longitude, or leave both empty.',
+            'longitude.required_with' => 'Enter both latitude and longitude, or leave both empty.',
+            'maps_url.url' => 'Paste the full Google Maps link (it must start with https://).',
             'hero_video_file.mimes' => 'That file is not a video we can use. Please upload an MP4 or WEBM.',
             'hero_video_file.max' => 'The video is too large. Maximum size is 60 MB.',
         ]);
