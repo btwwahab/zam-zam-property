@@ -127,7 +127,7 @@
         <div class="swiper">
           <div class="swiper-wrapper">
             @foreach($navProjects as $p)
-              @php $img = $p->image ?: 'gated_community_aerial'; @endphp
+              @php $img = $p->image ?: 'project-placeholder'; @endphp
               <div class="swiper-slide">
                 <article class="project-card">
                   <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
@@ -156,18 +156,37 @@
     </div>
   </section>
 
-  {{-- ============ PACKAGES ============ --}}
-  @if($packages->count())
+  {{-- ============ PACKAGES (one tab per project; first project's plans open by default) ============ --}}
+  @if($packageGroups->count())
   <section class="section-padding packages-section">
     <div class="container">
       <div class="text-center section-header">
-        <span class="badge-pill-tag gold mb-2">{{ pc('home_packages_badge', 'Zam Zam Orchard') }}</span>
-        <h2 class="section-title">{{ pc('home_packages_heading', 'Farmhouse Plots — Cash & Easy Installments') }}</h2>
+        <span class="badge-pill-tag gold mb-2">{{ pc('home_packages_badge', 'Plot Packages') }}</span>
+        <h2 class="section-title">{{ pc('home_packages_heading', 'Cash & Easy Installment Plans') }}</h2>
       </div>
-      <div class="row g-4 justify-content-center">
-        @foreach($packages as $pkg)
-          <div class="col-lg-4 col-md-6">
-            @include('partials.plot-package-card', ['pkg' => $pkg])
+
+      @if($packageGroups->count() > 1)
+        <ul class="nav nav-pills avail-tabs justify-content-center mb-4" role="tablist">
+          @foreach($packageGroups as $slug => $group)
+            <li class="nav-item" role="presentation"><button class="nav-link {{ $loop->first ? 'active' : '' }}" id="pkgtab-btn-{{ $slug }}" data-bs-toggle="pill" data-bs-target="#pkgtab-{{ $slug }}" type="button" role="tab" aria-controls="pkgtab-{{ $slug }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">{{ $group->first()->project->name ?? $slug }}</button></li>
+          @endforeach
+        </ul>
+      @endif
+
+      <div class="tab-content">
+        @foreach($packageGroups as $slug => $group)
+          @php $pName = $group->first()->project->name ?? $slug; @endphp
+          <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="pkgtab-{{ $slug }}" role="tabpanel" aria-labelledby="pkgtab-btn-{{ $slug }}" tabindex="0">
+            <div class="row g-4 justify-content-center">
+              @foreach($group as $pkg)
+                <div class="col-lg-4 col-md-6">
+                  @include('partials.plot-package-card', ['pkg' => $pkg])
+                </div>
+              @endforeach
+            </div>
+            <div class="text-center mt-4">
+              <a href="{{ route('projects') }}#{{ $slug }}" class="btn btn-outline-gold">Explore {{ $pName }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
           </div>
         @endforeach
       </div>

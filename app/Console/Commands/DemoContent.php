@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Admin\ProjectMediaController;
+use App\Models\PlotPackage;
 use App\Models\Project;
 use App\Models\ProjectMedia;
 use App\Models\Property;
@@ -40,7 +41,7 @@ class DemoContent extends Command
             return self::FAILURE;
         }
 
-        $state = ['property_refs' => [], 'sold_flipped' => [], 'media_ids' => []];
+        $state = ['property_refs' => [], 'sold_flipped' => [], 'media_ids' => [], 'package_ids' => []];
         $heroVideo = public_path('assets/videos/hero.mp4');
 
         foreach (Project::orderBy('sort_order')->get() as $i => $project) {
@@ -66,6 +67,14 @@ class DemoContent extends Command
                 $state['property_refs'][] = $p->ref;
                 $makeSold ? $sold++ : $availCount++;
                 $this->line('  added '.($makeSold ? 'sold     ' : 'available').": {$p->ref}");
+            }
+
+            // ---- plot plans (only for projects that have none yet)
+            if (! PlotPackage::where('project_slug', $project->slug)->exists()) {
+                foreach ($this->addSamplePackages($project) as $id) {
+                    $state['package_ids'][] = $id;
+                }
+                $this->line('  added 3 sample plot plans');
             }
 
             // ---- media
@@ -112,6 +121,7 @@ class DemoContent extends Command
             ProjectMediaController::removeFiles($m);
             $m->delete();
         }
+        PlotPackage::whereIn('id', $state['package_ids'] ?? [])->delete();
         Property::whereIn('ref', $state['property_refs'] ?? [])->delete();
         Property::whereIn('ref', $state['sold_flipped'] ?? [])->update(['is_sold' => false]);
 
@@ -119,6 +129,34 @@ class DemoContent extends Command
         $this->info('Demo content removed.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Three SAMPLE plans (5 Marla, 10 Marla, 1 Kanal) with placeholder rates, so a project's
+     * "Available Plans" section can be shown in a demo. Returns the new package ids.
+     */
+    public function addSamplePackages(Project $project): array
+    {
+        [$cash, $installment] = match ($project->slug) {
+            'al-falah-model-city' => [700000, 800000],
+            default => [850000, 950000],
+        };
+        $ids = [];
+        foreach ([['5 Marla Residential Plot', 0.25], ['10 Marla Residential Plot', 0.5], ['1 Kanal Residential Plot', 1.0]] as [$label, $kanal]) {
+            $ids[] = PlotPackage::create([
+                'project_slug' => $project->slug,
+                'label' => $label,
+                'size_kanal' => $kanal,
+                'price_cash_per_marla' => $cash,
+                'price_installment_per_marla' => $installment,
+                'advance_percent' => 25,
+                'tenure_years' => 3,
+                'is_featured' => false,
+                'sort_order' => (int) PlotPackage::max('sort_order') + 1,
+            ])->id;
+        }
+
+        return $ids;
     }
 
     private function makeProperty(Project $project, int $n, bool $sold): Property

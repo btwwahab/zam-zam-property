@@ -34,8 +34,8 @@
         <input type="number" step="1" min="1000" id="pp-cash" name="price_cash_per_marla" value="{{ old('price_cash_per_marla', $package->price_cash_per_marla) }}" required class="@error('price_cash_per_marla') has-err @enderror">
         @error('price_cash_per_marla')<span class="fld-err">{{ $message }}</span>@enderror</div>
 
-      <div class="fld"><label>Installment price — per Marla (PKR)<span class="req-star">*</span></label>
-        <input type="number" step="1" min="1000" id="pp-inst" name="price_installment_per_marla" value="{{ old('price_installment_per_marla', $package->price_installment_per_marla) }}" required class="@error('price_installment_per_marla') has-err @enderror">
+      <div class="fld"><label>Installment price — per Marla (PKR) <span class="hint">(optional — leave empty for a cash-only plan)</span></label>
+        <input type="number" step="1" min="1000" id="pp-inst" name="price_installment_per_marla" value="{{ old('price_installment_per_marla', $package->price_installment_per_marla) }}" class="@error('price_installment_per_marla') has-err @enderror">
         @error('price_installment_per_marla')<span class="fld-err">{{ $message }}</span>@enderror</div>
 
       <div class="fld"><label>Advance payment (%)</label>
@@ -89,7 +89,11 @@
     var months = Math.max(1, yrs * 12);
     var monthly = (instTotal - advAmt) / months;
 
-    if (!marla || !cashRate || !instRate) { out.textContent = 'Fill in the fields above to see the calculated totals.'; return; }
+    if (!marla || !cashRate) { out.textContent = 'Fill in the fields above to see the calculated totals.'; return; }
+    if (!instRate) {   // cash-only plan
+      out.innerHTML = '<div style="display:flex;gap:24px;flex-wrap:wrap"><div>' + marla + ' Marla total</div><div>Cash: <strong>' + money(cashTotal) + '</strong></div><div style="color:var(--text-muted)">Cash-only plan (no installment)</div></div>';
+      return;
+    }
     out.innerHTML =
       '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:8px">' +
         '<div>' + marla + ' Marla total</div>' +

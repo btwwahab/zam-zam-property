@@ -58,7 +58,7 @@ class PlotPackageController extends Controller
             'label' => 'required|string|max:120',
             'size_kanal' => 'required|numeric|min:0.25|max:1000',
             'price_cash_per_marla' => 'required|integer|min:1000',
-            'price_installment_per_marla' => 'required|integer|min:1000',
+            'price_installment_per_marla' => 'nullable|integer|min:1000',   // empty = cash-only plan
             'advance_percent' => 'nullable|integer|min:0|max:100',
             'tenure_years' => 'nullable|integer|min:1|max:15',
             'sort_order' => 'nullable|integer',

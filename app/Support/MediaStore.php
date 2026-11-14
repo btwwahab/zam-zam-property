@@ -178,7 +178,7 @@ class MediaStore
 
     /** Seed / shared assets that shipped with the app — never auto-deleted. */
     private const PROTECTED_PREFIXES = [
-        'senior_realtor', 'gated_community_aerial', 'designer_house', 'hero_mansion',
+        'senior_realtor', 'gated_community_aerial', 'project-placeholder', 'designer_house', 'hero_mansion',
         'modern_villa', 'golf_community', 'prime_commercial', 'plots',
         'architectural_floorplan', 'floorplan_sample', 'logo',
     ];

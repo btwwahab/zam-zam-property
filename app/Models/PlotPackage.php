@@ -28,18 +28,27 @@ class PlotPackage extends Model
         return $this->total_marla * $this->price_cash_per_marla;
     }
 
-    public function getInstallmentTotalAttribute(): float
+    /** False for cash-only plans (no installment rate set). */
+    public function getHasInstallmentAttribute(): bool
     {
-        return $this->total_marla * $this->price_installment_per_marla;
+        return $this->price_installment_per_marla !== null;
     }
 
-    public function getAdvanceAmountAttribute(): float
+    public function getInstallmentTotalAttribute(): ?float
     {
-        return round($this->installment_total * $this->advance_percent / 100);
+        return $this->has_installment ? $this->total_marla * $this->price_installment_per_marla : null;
     }
 
-    public function getMonthlyInstallmentAttribute(): float
+    public function getAdvanceAmountAttribute(): ?float
     {
+        return $this->has_installment ? round($this->installment_total * $this->advance_percent / 100) : null;
+    }
+
+    public function getMonthlyInstallmentAttribute(): ?float
+    {
+        if (! $this->has_installment) {
+            return null;
+        }
         $months = max(1, $this->tenure_years * 12);
 
         return round(($this->installment_total - $this->advance_amount) / $months);

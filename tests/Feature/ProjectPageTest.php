@@ -117,6 +117,55 @@ class ProjectPageTest extends TestCase
         $this->assertDatabaseMissing('project_media', ['id' => $layout->id]);
     }
 
+    public function test_homepage_shows_every_projects_plans_in_tabs_with_the_first_project_open(): void
+    {
+        Project::create(['slug' => 'other-city', 'name' => 'Other City', 'location' => 'Multan', 'sort_order' => 5]);
+        $mk = fn (string $slug, string $label, int $order) => \App\Models\PlotPackage::create([
+            'project_slug' => $slug, 'label' => $label, 'size_kanal' => 1, 'price_cash_per_marla' => 500000,
+            'price_installment_per_marla' => 600000, 'advance_percent' => 25, 'tenure_years' => 3, 'sort_order' => $order,
+        ]);
+        $mk('demo-city', 'DemoCity Plan', 1);
+        $mk('other-city', 'OtherCity Plan', 2);
+
+        $home = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('DemoCity Plan', $home);
+        $this->assertStringContainsString('OtherCity Plan', $home);
+        // two tabs; the project whose plans come first is the one that is open
+        $this->assertStringContainsString('id="pkgtab-btn-demo-city"', $home);
+        $this->assertStringContainsString('id="pkgtab-btn-other-city"', $home);
+        $this->assertStringContainsString('show active" id="pkgtab-demo-city"', $home);
+        $this->assertStringNotContainsString('show active" id="pkgtab-other-city"', $home);
+
+        // each project also shows only its own plans on the Projects page
+        $this->get('/projects.html')->assertOk()->assertSee('DemoCity Plan')->assertSee('OtherCity Plan');
+    }
+
+    public function test_cash_only_plan_shows_just_the_cash_price(): void
+    {
+        $mk = fn (string $label, ?int $inst) => \App\Models\PlotPackage::create([
+            'project_slug' => 'demo-city', 'label' => $label, 'size_kanal' => 0.25, 'price_cash_per_marla' => 900000,
+            'price_installment_per_marla' => $inst, 'advance_percent' => 25, 'tenure_years' => 3, 'sort_order' => $inst ? 2 : 1,
+        ]);
+        $cash = $mk('CashOnly Plot', null);
+        $both = $mk('Both Plot', 1000000);
+
+        $this->assertFalse($cash->has_installment);
+        $this->assertSame(4500000.0, $cash->cash_total);       // 5 marla x 900,000
+        $this->assertNull($cash->installment_total);
+        $this->assertNull($cash->monthly_installment);
+        $this->assertTrue($both->has_installment);
+
+        $html = $this->get('/projects.html')->assertOk()->getContent();
+        [$cashCard, $bothCard] = [
+            substr($html, strpos($html, 'CashOnly Plot'), 1800),
+            substr($html, strpos($html, 'Both Plot'), 1800),
+        ];
+        $this->assertStringContainsString('PKR 45 Lakh', $cashCard);
+        $this->assertStringContainsString('Full payment in cash', $cashCard);
+        $this->assertStringNotContainsString('Installments', substr($cashCard, 0, strpos($cashCard, 'Book This Plot')));
+        $this->assertStringContainsString('Installments', $bothCard);
+    }
+
     public function test_several_videos_render_as_a_slider_and_one_video_stays_a_plain_player(): void
     {
         ProjectMedia::create(['project_id' => $this->project->id, 'type' => 'video', 'title' => 'One', 'url' => 'https://youtu.be/dQw4w9WgXcQ', 'sort_order' => 1]);

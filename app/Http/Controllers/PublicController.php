@@ -44,7 +44,8 @@ class PublicController extends Controller
         return view('public.home', [
             'active' => 'home',
             'team' => \App\Models\TeamMember::orderBy('sort_order')->get(),
-            'packages' => \App\Models\PlotPackage::with('project')->orderBy('sort_order')->get(),
+            // plans grouped by project, in package order: the project whose plans came first (Zam Zam Orchard) is the first, default tab
+            'packageGroups' => \App\Models\PlotPackage::with('project')->orderBy('sort_order')->get()->groupBy('project_slug'),
             'propertiesJson' => $this->propertiesJson(),
             'agentsJson' => $this->agentsJson(),
             'heroSlides' => HeroSlide::orderBy('sort_order')->get(),
@@ -77,7 +78,8 @@ class PublicController extends Controller
         $p->soldProps = $props->where('is_sold', true)->values();
 
         $p->property_count = $p->availableProps->count();
-        $p->img = $p->image ?: 'gated_community_aerial';
+        // a project without its own photo gets the neutral brand placeholder, never another project's picture
+        $p->img = $p->image ?: 'project-placeholder';
         $hay = strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug);
         $p->is_farm = str_contains($hay, 'farm') || str_contains($hay, 'orchard');
         $p->sizes = $p->availableProps->pluck('size')->unique()->filter()->values();
