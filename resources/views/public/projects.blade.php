@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Projects | ' . $navProjects->pluck('name')->join(' & ') . ', Multan | ' . $site->name)
-@section('description', $site->name . ' projects in Multan along the Southern Bypass corridor.')
+@section('description', $site->name . ' projects in Multan: Southern Bypass, Mattital Road, Kassi Road and Qadirpur Ran.')
 
 @section('head')
   @if($needsSwiper)<link rel="stylesheet" href="{{ asset_v('/vendor/swiper/swiper-bundle.min.css') }}">@endif

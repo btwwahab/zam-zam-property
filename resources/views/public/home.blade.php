@@ -286,7 +286,7 @@
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6">
           <div class="showcase-media">
-            <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/gated_community_aerial.png" alt="Southern Bypass property corridor, Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+            <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/gated_community_aerial.png" alt="Aerial view of a planned housing society in Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(collect(explode(' ', $site->name))->map(fn($w) => $w[0] ?? '')->join('')), 0, 2) }}</span>
               <span><span class="sm-title d-block">Flagship Projects</span><span class="sm-sub">{{ $navProjects->pluck('name')->join(' • ') }}</span></span>

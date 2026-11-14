@@ -33,7 +33,7 @@
             <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/gated_community_aerial.png" alt="Aerial view of a planned housing society near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(collect(explode(' ', $site->name))->map(fn($w) => $w[0] ?? '')->join('')), 0, 2) }}</span>
-              <span><span class="sm-title d-block">Southern Bypass Corridor</span><span class="sm-sub">Khera Chowk &bull; Budhla Road, Multan</span></span>
+              <span><span class="sm-title d-block">Al-Falah Model City</span><span class="sm-sub">Mattital Road, Multan</span></span>
             </div>
           </div>
         </div>

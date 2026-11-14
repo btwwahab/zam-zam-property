@@ -166,7 +166,7 @@
     var locationCard =
       '<div class="card border-0 shadow-sm rounded-4 p-4 mb-4"><h2 class="fw-bold mb-3 text-navy h5">Location &amp; Connectivity</h2>' +
       '<p class="text-muted mb-2"><i class="fa-solid fa-location-dot text-gold-ink me-2" aria-hidden="true"></i>' + esc(p.address) + '</p>' +
-      '<p class="text-muted small mb-0">Positioned within Multan\'s Southern Bypass corridor, with access associated with Budhla Road and the surrounding road network toward major parts of the city. Confirm exact plot location on a site visit.</p></div>';
+      '<p class="text-muted small mb-0">Located in Multan, with access to the surrounding road network toward major parts of the city. Confirm exact plot location on a site visit.</p></div>';
 
     var disclaimer =
       '<div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-light"><p class="small text-muted mb-0">' +

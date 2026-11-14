@@ -8,7 +8,7 @@
     <div class="container py-3">
       <div class="row align-items-center">
         <div class="col-md-8">
-          <span class="badge-pill-tag gold mb-2">Multan &bull; Southern Bypass Corridor</span>
+          <span class="badge-pill-tag gold mb-2">Multan &bull; Punjab, Pakistan</span>
           <h1 class="fs-1 fw-bold text-white mb-2">Property Opportunities</h1>
           <p class="text-light mb-0">Residential plots, commercial plots and farmhouse land across {{ $navProjects->pluck('name')->join(' and ') }}. Prices and availability shown are indicative &mdash; confirm current details with our team.</p>
         </div>
