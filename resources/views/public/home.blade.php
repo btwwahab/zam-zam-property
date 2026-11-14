@@ -4,6 +4,7 @@
 @section('description', 'Explore residential, commercial, land and farmhouse property opportunities in Multan with ' . $site->name . '.')
 
 @section('head')
+  @if($navProjects->count() > 1)<link rel="stylesheet" href="{{ asset_v('/vendor/swiper/swiper-bundle.min.css') }}">@endif
   @if($site->hero_type !== 'video')
     <link rel="preload" as="image" href="/assets/images/{{ ($heroSlides->first()->image ?? $site->hero_poster) }}.webp" fetchpriority="high">
   @endif
@@ -92,7 +93,8 @@
   </section>
 
   {{-- ============ HIGHLIGHTS ============ --}}
-  <section class="bg-white">
+  {{-- same cream as the next section, so the strip floats over the hero edge instead of sitting on a colour seam --}}
+  <section class="bg-light highlights-section">
     <div class="container">
       <div class="highlight-strip">
         <div class="row g-0">
@@ -121,24 +123,35 @@
         </div>
         <a href="{{ route('projects') }}" class="btn btn-outline-gold d-none d-md-inline-flex">All Projects <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       </div>
-      <div class="row g-4 justify-content-center">
-        @foreach($navProjects as $p)
-          @php $img = $p->image ?: 'gated_community_aerial'; @endphp
-          <div class="col-lg-6">
-            <article class="project-card">
-              <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
-              <div class="project-card-overlay">
-                <span class="project-tag">{{ $p->tag ?: 'Development' }}</span>
-                <h3 class="fw-bold fs-2 text-white mb-1">{{ $p->name }}</h3>
-                <p class="text-light fs-6 mb-3">{{ $p->description }}</p>
-                <div class="d-flex gap-2">
-                  <a href="{{ route('properties') }}?project={{ $p->slug }}" class="btn btn-sm btn-gold">View Plots</a>
-                  <a href="{{ route('projects') }}#{{ $p->slug }}" class="btn btn-glass-light"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Details</a>
-                </div>
+      <div class="project-slider" data-project-slider>
+        <div class="swiper">
+          <div class="swiper-wrapper">
+            @foreach($navProjects as $p)
+              @php $img = $p->image ?: 'gated_community_aerial'; @endphp
+              <div class="swiper-slide">
+                <article class="project-card">
+                  <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+                  <div class="project-card-overlay">
+                    <span class="project-tag">{{ $p->tag ?: 'Development' }}</span>
+                    <h3 class="fw-bold fs-2 text-white mb-1">{{ $p->name }}</h3>
+                    <p class="text-light fs-6 mb-3">{{ $p->description }}</p>
+                    <div class="d-flex gap-2">
+                      <a href="{{ route('properties') }}?project={{ $p->slug }}" class="btn btn-sm btn-gold">View Plots</a>
+                      <a href="{{ route('projects') }}#{{ $p->slug }}" class="btn btn-glass-light"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Details</a>
+                    </div>
+                  </div>
+                </article>
               </div>
-            </article>
+            @endforeach
           </div>
-        @endforeach
+        </div>
+        @if($navProjects->count() > 1)
+          <div class="slider-controls" aria-label="Project slider controls">
+            <button type="button" class="slider-nav project-prev" aria-label="Previous project"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <div class="swiper-pagination project-dots"></div>
+            <button type="button" class="slider-nav project-next" aria-label="Next project"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        @endif
       </div>
     </div>
   </section>
@@ -355,3 +368,39 @@
     });
   </script>
 @endpush
+
+@if($navProjects->count() > 1)
+@push('scripts')
+  <script src="{{ asset_v('/vendor/swiper/swiper-bundle.min.js') }}" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var root = document.querySelector('[data-project-slider]');
+      if (!root || !window.Swiper) return;
+      var slides = root.querySelectorAll('.swiper-slide').length;
+      var controls = root.querySelector('.slider-controls');
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      root.classList.add('is-ready');            // before init, so Swiper measures the final layout
+      var swiper = new Swiper(root.querySelector('.swiper'), {
+        slidesPerView: 1, spaceBetween: 24, speed: 600, grabCursor: true,
+        loop: slides > 2, rewind: slides <= 2,
+        breakpoints: { 992: { slidesPerView: 2 } },
+        autoplay: reduced ? false : { delay: 1400, disableOnInteraction: false, pauseOnMouseEnter: true },
+        navigation: { prevEl: root.querySelector('.project-prev'), nextEl: root.querySelector('.project-next') },
+        pagination: { el: root.querySelector('.project-dots'), clickable: true },
+        keyboard: { enabled: true, onlyInViewport: true },
+        a11y: { enabled: true },
+        watchOverflow: true,
+        observer: true, observeParents: true,
+        on: {
+          lock: function () { if (controls) controls.hidden = true; },       // everything already fits: nothing to slide
+          unlock: function () { if (controls) controls.hidden = false; }
+        }
+      });
+      // keyboard / screen-reader users: do not slide away while they are using a link inside a card
+      root.addEventListener('focusin', function () { if (swiper.autoplay && swiper.autoplay.running) swiper.autoplay.stop(); });
+      root.addEventListener('focusout', function () { if (swiper.autoplay && !reduced && !root.matches(':hover')) swiper.autoplay.start(); });
+    });
+  </script>
+@endpush
+@endif
