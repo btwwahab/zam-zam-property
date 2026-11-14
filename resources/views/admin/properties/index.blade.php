@@ -23,6 +23,11 @@
       <option value="">Any Status</option>
       @foreach(['Featured','Verified','Hot Deal'] as $s)<option value="{{ $s }}" @selected(($filters['status'] ?? '') === $s)>{{ $s }}</option>@endforeach
     </select>
+    <select name="availability" onchange="this.form.submit()">
+      <option value="">Available + Sold</option>
+      <option value="available" @selected(($filters['availability'] ?? '') === 'available')>Available only</option>
+      <option value="sold" @selected(($filters['availability'] ?? '') === 'sold')>Sold only</option>
+    </select>
     <button class="btn-a btn-ghost btn-sm" type="submit"><i class="fa-solid fa-filter"></i> Apply</button>
     <a class="btn-a btn-ghost btn-sm" href="{{ route('admin.properties.index') }}">Clear</a>
   </form>
@@ -35,7 +40,7 @@
           <tr>
             <td><img class="thumb" src="/assets/images/{{ $p->image }}.webp" alt="" onerror="this.style.visibility='hidden'"></td>
             <td><span class="ref-pill">{{ $p->ref }}</span></td>
-            <td><strong>{{ $p->title }}</strong> @if($p->investment)<span class="badge-a badge-new">Investment</span>@endif</td>
+            <td><strong>{{ $p->title }}</strong> @if($p->is_sold)<span class="badge-a badge-sold">Sold</span>@endif @if($p->investment)<span class="badge-a badge-new">Investment</span>@endif</td>
             <td>{{ ucfirst($p->category_slug) }}</td>
             <td>{{ $p->project_name }}</td>
             <td>{{ $p->size }}</td>
@@ -43,6 +48,10 @@
             <td><span class="badge-a badge-{{ $p->status_class }}">{{ $p->status }}</span></td>
             <td>@if($p->featured)<i class="fa-solid fa-circle-check" style="color:var(--emerald)"></i>@else<i class="fa-regular fa-circle" style="color:var(--text-faint)"></i>@endif</td>
             <td><div class="row-actions">
+              <form method="POST" action="{{ route('admin.properties.sold', $p->ref) }}">
+                @csrf @method('PATCH')
+                <button type="submit" class="btn-a btn-ghost" style="padding:6px 9px" title="{{ $p->is_sold ? 'Mark as available again' : 'Mark as sold' }}"><i class="fa-solid {{ $p->is_sold ? 'fa-rotate-left' : 'fa-handshake' }}"></i></button>
+              </form>
               <a class="btn-a btn-ghost" style="padding:6px 9px" href="{{ route('admin.properties.edit', $p->ref) }}" title="Edit"><i class="fa-solid fa-pen"></i></a>
               <form method="POST" action="{{ route('admin.properties.destroy', $p->ref) }}" data-confirm="Delete {{ $p->ref }}?">
                 @csrf @method('DELETE')

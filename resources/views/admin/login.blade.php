@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin Login &middot; {{ $site->name }}</title>
-  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png">
+  <link rel="shortcut icon" href="/favicon.ico?v=4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,7 +50,7 @@
 
     .auth-brand .b-inner { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
     .auth-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
-    .auth-logo img { width: 44px; height: 44px; border-radius: 12px; }
+    .auth-logo img { height: 64px; width: auto; }
     .auth-logo span { font-family: var(--font-heading); font-weight: 800; font-size: 17px; letter-spacing: .3px; }
 
     .auth-brand h2 {
@@ -127,7 +128,7 @@
     <div class="auth-brand">
       <div class="b-inner">
         <div class="auth-logo">
-          <img src="/favicon.svg?v=3" alt="">
+          <img src="/assets/images/logo.png" alt="">
           <span>{{ $site->name }}</span>
         </div>
         <h2>Welcome back.<br>Manage your listings with ease.</h2>

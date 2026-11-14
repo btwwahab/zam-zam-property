@@ -7,18 +7,17 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', $site->name . ' | Real Estate in Multan')</title>
   <meta name="description" content="@yield('description', $site->tagline)">
-  <meta name="theme-color" content="#0F172A">
+  <meta name="theme-color" content="#0A0A0A">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="{{ $site->name }}">
   <meta property="og:title" content="@yield('title', $site->name)">
   <meta property="og:description" content="@yield('description', $site->tagline)">
   @yield('head')
 
-  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
-  <link rel="icon" href="/favicon-32.png?v=3" sizes="32x32" type="image/png">
-  <link rel="icon" href="/favicon-16.png?v=3" sizes="16x16" type="image/png">
-  <link rel="shortcut icon" href="/favicon.ico?v=3">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png">
+  <link rel="icon" href="/favicon-16.png?v=4" sizes="16x16" type="image/png">
+  <link rel="shortcut icon" href="/favicon.ico?v=4">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

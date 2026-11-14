@@ -8,7 +8,8 @@
   <meta name="robots" content="noindex, nofollow">
   <title>@yield('title', 'Admin') &middot; {{ $site->name }}</title>
 
-  <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png">
+  <link rel="shortcut icon" href="/favicon.ico?v=4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +22,7 @@
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <img src="/assets/images/logo-footer.svg" alt="{{ $site->name }}">
+      <img src="/assets/images/logo.png" alt="{{ $site->name }}">
       <span class="brand-sub">Admin</span>
     </div>
     <nav class="sidebar-nav">

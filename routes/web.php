@@ -6,11 +6,13 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\PageContentController;
 use App\Http\Controllers\Admin\PlotPackageController;
+use App\Http\Controllers\Admin\ProjectMediaController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\PublicController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /* -------------------------------------------------------------------------
@@ -21,7 +23,8 @@ Route::get('/index.html', [PublicController::class, 'home']);
 Route::get('/properties.html', [PublicController::class, 'properties'])->name('properties');
 Route::get('/property-detail.html', [PublicController::class, 'propertyDetail'])->name('property.detail');
 Route::get('/projects.html', [PublicController::class, 'projects'])->name('projects');
-Route::get('/project-detail.html', [PublicController::class, 'projectDetail'])->name('project.detail');
+// everything about a project now lives on the Projects page; keep old links working
+Route::get('/project-detail.html', fn (Request $r) => redirect(route('projects') . ($r->query('id') ? '#' . $r->query('id') : ''), 301));
 Route::get('/about.html', [PublicController::class, 'about'])->name('about');
 Route::get('/contact.html', [PublicController::class, 'contact'])->name('contact');
 Route::get('/privacy.html', [PublicController::class, 'privacy'])->name('privacy');
@@ -39,8 +42,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+        Route::patch('properties/{property}/sold', [PropertyController::class, 'toggleSold'])->name('properties.sold');
         Route::resource('properties', PropertyController::class)->except(['show']);
         Route::resource('projects', ProjectController::class)->except(['show']);
+        Route::post('projects/{project}/media', [ProjectMediaController::class, 'store'])->name('projects.media.store');
+        Route::delete('project-media/{media}', [ProjectMediaController::class, 'destroy'])->name('projects.media.destroy');
         Route::resource('categories', CategoryController::class)->except(['show']);
         Route::resource('plot-packages', PlotPackageController::class)->except(['show']);
         Route::resource('team', TeamController::class)->except(['show'])->parameters(['team' => 'member']);

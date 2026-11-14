@@ -97,6 +97,13 @@
       <div class="highlight-strip">
         <div class="row g-0">
           @foreach(pc_list('home_highlights') as $h)
+            @php
+              // "2 Projects" / "4 Categories" are counts - keep them true as projects/categories are added
+              $hTitle = $h['title'];
+              if (preg_match('/^\d+\s+Projects?$/i', $hTitle)) { $hTitle = count($navProjects) . ' ' . \Illuminate\Support\Str::plural('Project', count($navProjects)); }
+              elseif (preg_match('/^\d+\s+Categor(y|ies)$/i', $hTitle)) { $hTitle = count($navCategories) . ' ' . \Illuminate\Support\Str::plural('Category', count($navCategories)); }
+              $h['title'] = $hTitle;
+            @endphp
             <div class="col-12 col-sm-6 col-lg-3"><div class="highlight-item"><i class="{{ str_contains($h['icon'], ' ') ? $h['icon'] : 'fa-solid ' . $h['icon'] }}" aria-hidden="true"></i><span><span class="h-title d-block">{{ $h['title'] }}</span><span class="h-sub">{{ $h['sub'] }}</span></span></div></div>
           @endforeach
         </div>
@@ -114,7 +121,7 @@
         </div>
         <a href="{{ route('projects') }}" class="btn btn-outline-gold d-none d-md-inline-flex">All Projects <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       </div>
-      <div class="row g-4">
+      <div class="row g-4 justify-content-center">
         @foreach($navProjects as $p)
           @php $img = $p->image ?: 'gated_community_aerial'; @endphp
           <div class="col-lg-6">
@@ -280,22 +287,7 @@
       <div class="row g-4 justify-content-center">
         @foreach($team as $m)
           <div class="col-lg-3 col-md-4 col-sm-6">
-            <div class="team-card h-100">
-              <div class="team-card-photo">
-                <picture>
-                  <source type="image/webp" srcset="/assets/images/{{ $m->image ?: 'senior_realtor_male' }}.webp">
-                  <img src="/assets/images/{{ $m->image ?: 'senior_realtor_male' }}.png" alt="{{ $m->name }}" width="600" height="600" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">
-                </picture>
-              </div>
-              <div class="team-card-body">
-                <h3 class="h6 fw-bold text-navy mb-1">{{ $m->name }}</h3>
-                @if($m->role)<p class="text-gold-ink small fw-semibold mb-2">{{ $m->role }}</p>@endif
-                <div class="team-card-links">
-                  @if($m->phone)<a href="tel:{{ preg_replace('/[^+\d]/', '', $m->phone) }}" aria-label="Call {{ $m->name }}"><i class="fa-solid fa-phone" aria-hidden="true"></i></a>@endif
-                  @if($m->whatsapp)<a href="https://wa.me/{{ $m->whatsapp }}" target="_blank" rel="noopener" aria-label="WhatsApp {{ $m->name }}"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>@endif
-                </div>
-              </div>
-            </div>
+            @include('partials.team-card', ['m' => $m])
           </div>
         @endforeach
       </div>

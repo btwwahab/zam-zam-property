@@ -12,9 +12,11 @@ use Illuminate\Http\Request;
 
 class PublicController extends Controller
 {
-    private function propertiesJson(): array
+    /** Sold properties stay out of the public listings; only their detail page still resolves. */
+    private function propertiesJson(bool $withSold = false): array
     {
-        return Property::orderBy('sort_order')->get()
+        return Property::when(! $withSold, fn ($q) => $q->available())
+            ->orderBy('sort_order')->get()
             ->map(fn (Property $p) => $p->toFrontend())->all();
     }
 
@@ -62,20 +64,30 @@ class PublicController extends Controller
     {
         return view('public.property-detail', [
             'active' => 'properties',
-            'propertiesJson' => $this->propertiesJson(),
+            'propertiesJson' => $this->propertiesJson(true),
             'agentsJson' => $this->agentsJson(),
         ]);
     }
 
+    /** Attach everything the Projects page shows for one project (info, plans, media, available + sold properties). */
     private function decorateProject(Project $p, bool $flip = false): Project
     {
-        $p->property_count = Property::where('project_slug', $p->slug)->count();
+        $props = Property::where('project_slug', $p->slug)->orderBy('sort_order')->get();
+        $p->availableProps = $props->where('is_sold', false)->values();
+        $p->soldProps = $props->where('is_sold', true)->values();
+
+        $p->property_count = $p->availableProps->count();
         $p->img = $p->image ?: 'gated_community_aerial';
-        $p->is_farm = str_contains(strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug), 'farm')
-            || str_contains(strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug), 'orchard');
-        $p->sizes = Property::where('project_slug', $p->slug)->pluck('size')->unique()->filter()->values();
+        $hay = strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug);
+        $p->is_farm = str_contains($hay, 'farm') || str_contains($hay, 'orchard');
+        $p->sizes = $p->availableProps->pluck('size')->unique()->filter()->values();
         $p->flip = $flip;
         $p->packages = PlotPackage::where('project_slug', $p->slug)->orderBy('sort_order')->get();
+
+        $media = $p->media;
+        $p->videos = $media->where('type', 'video')->values();
+        $p->layouts = $media->where('type', 'layout')->values();
+        $p->locations = $media->where('type', 'location')->values();
 
         return $p;
     }
@@ -88,17 +100,6 @@ class PublicController extends Controller
         return view('public.projects', [
             'active' => 'projects',
             'projects' => $projects,
-        ]);
-    }
-
-    public function projectDetail(Request $request)
-    {
-        $project = Project::where('slug', $request->query('id'))->firstOrFail();
-        $this->decorateProject($project);
-
-        return view('public.project-detail', [
-            'active' => 'projects',
-            'project' => $project,
         ]);
     }
 

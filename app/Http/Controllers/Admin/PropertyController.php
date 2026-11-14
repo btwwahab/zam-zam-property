@@ -27,12 +27,15 @@ class PropertyController extends Controller
         if ($st = $request->get('status')) {
             $q->where('status', $st);
         }
+        if ($av = $request->get('availability')) {
+            $av === 'sold' ? $q->sold() : $q->available();
+        }
 
         return view('admin.properties.index', [
             'properties' => $q->paginate(15)->withQueryString(),
             'categories' => Category::orderBy('sort_order')->get(),
             'projects' => Project::orderBy('sort_order')->get(),
-            'filters' => $request->only(['q', 'category', 'project', 'status']),
+            'filters' => $request->only(['q', 'category', 'project', 'status', 'availability']),
         ]);
     }
 
@@ -70,6 +73,14 @@ class PropertyController extends Controller
         $property->update($data);
 
         return redirect()->route('admin.properties.index')->with('ok', 'Property "'.$property->ref.'" updated.');
+    }
+
+    /** One-click Available <-> Sold from the list. Sold properties are kept, just moved. */
+    public function toggleSold(Property $property)
+    {
+        $property->update(['is_sold' => ! $property->is_sold]);
+
+        return back()->with('ok', 'Property "'.$property->ref.'" marked as '.($property->is_sold ? 'sold' : 'available').'.');
     }
 
     public function destroy(Property $property)
@@ -154,6 +165,7 @@ class PropertyController extends Controller
             'status' => $v['status'],
             'status_class' => strtolower(str_replace(' ', '', $v['status'])),
             'featured' => $request->boolean('featured'),
+            'is_sold' => $request->boolean('is_sold'),
             'image' => $gallery[0] ?? ($property?->image),
             'gallery' => $gallery,
             'location' => $v['location'] ?? null,

@@ -51,6 +51,8 @@ class ProjectController extends Controller
                 'project_slug' => $project->slug,
                 'project_name' => $project->name,
             ]);
+            // plot packages are tied to the project by slug too
+            \App\Models\PlotPackage::where('project_slug', $old)->update(['project_slug' => $project->slug]);
         } else {
             Property::where('project_slug', $project->slug)->update(['project_name' => $project->name]);
         }
@@ -65,6 +67,10 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $image = $project->image;
+        // uploaded map images / videos live on disk, the DB rows go with the project (cascade)
+        foreach ($project->media as $m) {
+            ProjectMediaController::removeFiles($m);
+        }
         $project->delete();
         MediaStore::forgetImageIfUnused($image);
 

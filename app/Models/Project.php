@@ -12,4 +12,9 @@ class Project extends Model
     {
         return $this->hasMany(Property::class, 'project_slug', 'slug');
     }
+
+    public function media()
+    {
+        return $this->hasMany(ProjectMedia::class)->orderBy('sort_order')->orderBy('id');
+    }
 }

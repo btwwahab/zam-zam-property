@@ -105,7 +105,7 @@
             '<li class="breadcrumb-item active text-light" aria-current="page">' + esc(p.id) + '</li>' +
           '</ol></nav>' +
           '<div class="d-flex align-items-center gap-2 mb-2 flex-wrap">' +
-            '<span class="badge-status ' + p.statusClass + '">' + esc(p.status) + '</span>' +
+            (p.sold ? '<span class="badge-status sold">Sold</span>' : '<span class="badge-status ' + p.statusClass + '">' + esc(p.status) + '</span>') +
             '<span class="badge-status bg-emerald">' + esc(p.projectName) + '</span>' +
             '<span class="badge-status bg-navy border border-secondary">' + esc(p.purpose) + '</span>' +
             '<span class="text-gold small fw-bold">ID: ' + esc(p.id) + '</span>' +
@@ -200,6 +200,10 @@
           '<a href="' + wa(waMsg, agent.whatsapp) + '" target="_blank" rel="noopener" class="btn btn-gold w-100 justify-content-center mb-2"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat on WhatsApp</a>' +
           '<a href="tel:' + esc(agent.phoneRaw) + '" class="btn btn-navy w-100 justify-content-center mb-4"><i class="fa-solid fa-phone" aria-hidden="true"></i> Call ' + esc((window.PN && window.PN.SITE.phone) || '+92 309 666 0071') + '</a>' +
           '<hr class="mb-4">' +
+          (p.sold
+            ? '<div class="alert alert-dark small py-2 px-3 mb-3" role="status"><strong>This property has been sold.</strong> Send an enquiry and we will share similar available options' +
+              (p.project ? ' &mdash; or <a href="projects.html#' + encodeURIComponent(p.project) + '-properties" class="alert-link">browse what is still available</a>' : '') + '.</div>'
+            : '') +
           '<h3 class="fw-bold text-navy h6 mb-3">Send an Enquiry</h3>' +
           '<form class="inquiry-form" novalidate>' +
             '<input type="hidden" name="propertyId" value="' + esc(p.id) + '">' +
@@ -221,7 +225,7 @@
 
   function similarBlock(p) {
     var sims = DATA.filter(function (x) {
-      return x.id !== p.id && (x.category === p.category || x.project === p.project);
+      return x.id !== p.id && !x.sold && (x.category === p.category || x.project === p.project);
     }).slice(0, 3);
     if (!sims.length) return '';
     var cards = sims.map(function (s) {

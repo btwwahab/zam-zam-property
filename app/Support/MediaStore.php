@@ -74,6 +74,82 @@ class MediaStore
         return "$base.$ext";
     }
 
+    /**
+     * Store a layout / master-plan image for a project. Maps are big and need to stay
+     * readable when zoomed (plot numbers!), so: WebP only (no PNG twin), long edge capped
+     * at 4000px, in assets/maps, plus a 1400px thumbnail (<name>-sm.webp) for the page grid.
+     * Returns the file name (with extension) or null.
+     */
+    public static function mapImage(UploadedFile $file, string $hint = 'map'): ?string
+    {
+        if (! $file->isValid()) {
+            return null;
+        }
+        // big plans decode to a lot of RAM; give GD room (no-op if the host forbids it)
+        @ini_set('memory_limit', '512M');
+
+        $src = @imagecreatefromstring((string) file_get_contents($file->getRealPath()));
+        if (! $src) {
+            return null;
+        }
+
+        imagepalettetotruecolor($src);
+        imagealphablending($src, true);
+        imagesavealpha($src, true);
+
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $max = 4000;
+        if (max($w, $h) > $max) {
+            $r = $max / max($w, $h);
+            $nw = (int) round($w * $r);
+            $nh = (int) round($h * $r);
+            $resized = imagecreatetruecolor($nw, $nh);
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+            imagecopyresampled($resized, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+            imagedestroy($src);
+            $src = $resized;
+        }
+
+        $dir = public_path('assets/maps');
+        @mkdir($dir, 0775, true);
+        $base = Str::slug(Str::limit($hint, 40, '')) ?: 'map';
+        $name = $base.'-'.substr(md5(uniqid('', true)), 0, 6).'.webp';
+        imagewebp($src, "$dir/$name", 85);
+
+        // thumbnail for the project page grid (the full file opens in the zoom view)
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $thumbName = preg_replace('/\.webp$/', '-sm.webp', $name);
+        if ($w > 1400) {
+            $th = (int) round($h * (1400 / $w));
+            $thumb = imagecreatetruecolor(1400, $th);
+            imagealphablending($thumb, false);
+            imagesavealpha($thumb, true);
+            imagecopyresampled($thumb, $src, 0, 0, 0, 0, 1400, $th, $w, $h);
+            imagewebp($thumb, "$dir/$thumbName", 82);
+            imagedestroy($thumb);
+        } else {
+            imagewebp($src, "$dir/$thumbName", 82);
+        }
+        imagedestroy($src);
+
+        return $name;
+    }
+
+    /** Remove a stored map image or uploaded project video by file name. */
+    public static function forgetFile(string $sub, ?string $name): void
+    {
+        if (! $name || str_contains($name, '/') || str_contains($name, '..')) {
+            return;
+        }
+        $path = public_path("assets/$sub/$name");
+        if (is_file($path)) {
+            @unlink($path);
+        }
+    }
+
     private static function uniqueBase(string $hint, string $sub, string $ext = 'webp'): string
     {
         $base = Str::slug(Str::limit($hint, 40, '')) ?: 'upload';

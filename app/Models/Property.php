@@ -18,9 +18,21 @@ class Property extends Model
         'features' => 'array',
         'investment' => 'boolean',
         'featured' => 'boolean',
+        'is_sold' => 'boolean',
         'price_pkr' => 'integer',
         'size_yds' => 'integer',
     ];
+
+    /** Still for sale (not marked sold). */
+    public function scopeAvailable($query)
+    {
+        return $query->where('is_sold', false);
+    }
+
+    public function scopeSold($query)
+    {
+        return $query->where('is_sold', true);
+    }
 
     public function category()
     {
@@ -59,6 +71,7 @@ class Property extends Model
             'status'         => $this->status,
             'statusClass'    => $this->status_class,
             'featured'       => (bool) $this->featured,
+            'sold'           => (bool) $this->is_sold,
             'image'          => $this->image,
             'gallery'        => $this->gallery ?: [],
             'agent'          => $this->agent ?: 'team',

@@ -35,7 +35,7 @@
           <input type="file" name="image_file" accept="image/*" class="@error('image_file') has-err @enderror">
           <div class="u-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
           <div class="u-main" data-drop-label>Drag &amp; drop a photo, or click to choose</div>
-          <div class="u-sub">Shown on the About page team section</div>
+          <div class="u-sub">Shown on the Home and About team sections. No photo? The first letters of the name are shown instead.</div>
           <div class="u-hints"><span>JPG</span><span>PNG</span><span>WEBP</span><span>MAX 8 MB</span></div>
         </div>
         @error('image_file')<span class="fld-err">{{ $message }}</span>@enderror</div>

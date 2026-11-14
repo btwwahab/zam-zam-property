@@ -25,3 +25,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# uploaded through the admin panel, or demo data: these live on the server, never in git
+/public/assets/maps/
+/public/assets/videos/demo-*
+/public/assets/images/al-falah-model-city-card*

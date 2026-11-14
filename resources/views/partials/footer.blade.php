@@ -11,7 +11,7 @@
     <div class="row g-4">
       <div class="col-lg-4 col-md-6">
         <a class="d-flex align-items-center mb-3" href="{{ route('home') }}">
-          <img src="/assets/images/logo-footer.svg" alt="{{ $site->name }}" class="brand-logo-img" style="height: 48px; width: auto;">
+          <picture><source type="image/webp" srcset="/assets/images/logo.webp"><img src="/assets/images/logo.png" alt="{{ $site->name }}" class="brand-logo-img" style="height: 96px; width: auto;" width="91" height="96"></picture>
         </a>
         <p class="text-light small mb-2 fw-semibold">{{ $site->tagline }}</p>
         <p class="text-light small mb-0">Residential &bull; Commercial &bull; Farmhouse &bull; Land &bull; Investment</p>

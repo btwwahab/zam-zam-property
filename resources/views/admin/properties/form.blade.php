@@ -62,6 +62,7 @@
           @foreach(['Featured','Verified','Hot Deal'] as $x)<option @selected(old('status', $property->status ?: 'Verified') === $x)>{{ $x }}</option>@endforeach
         </select>
         @error('status')<span class="fld-err">{{ $message }}</span>@enderror</div>
+      <div class="fld check"><input type="checkbox" name="is_sold" value="1" id="f-sold" @checked(old('is_sold', $property->is_sold))><label for="f-sold"><strong>Mark as sold</strong> &mdash; moves it to the "Sold" tab on its project page and hides it from the main property listings</label></div>
       <div class="fld check"><input type="checkbox" name="featured" value="1" id="f-featured" @checked(old('featured', $property->featured))><label for="f-featured">Show in homepage featured section</label></div>
       <div class="fld check"><input type="checkbox" name="investment" value="1" id="f-invest" @checked(old('investment', $property->investment))><label for="f-invest">Flag as investment opportunity</label></div>
 

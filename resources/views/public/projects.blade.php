@@ -4,8 +4,10 @@
 @section('description', $site->name . ' projects in Multan along the Southern Bypass corridor.')
 
 @section('head')
+  <link rel="stylesheet" href="{{ asset_v('/vendor/swiper/swiper-bundle.min.css') }}">
   @verbatim
   <style>
+    #projects-container { --bs-gutter-y: 4rem; }
     .project-hero-card { background: var(--bg-white); border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--shadow-md); overflow: hidden; transition: var(--transition); }
     .project-hero-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
     .project-img-wrapper { position: relative; min-height: 380px; height: 100%; overflow: hidden; }
@@ -73,7 +75,7 @@
                       <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                         <span class="badge-pill-tag {{ $isFarm ? 'navy' : 'gold' }}">{{ $p->location }}</span>
                       </div>
-                      <h2 class="fw-bold text-navy fs-2 mb-3"><a href="{{ route('project.detail') }}?id={{ $p->slug }}" class="text-navy text-decoration-none">{{ $p->name }}</a></h2>
+                      <h2 class="fw-bold text-navy fs-2 mb-3">{{ $p->name }}</h2>
                       <p class="text-muted mb-3">{{ $p->description }}</p>
                       @if($sizes->count())
                         <h3 class="h6 fw-bold text-navy mb-2">Available plot sizes</h3>
@@ -85,60 +87,163 @@
                       @endif
                       <p class="small text-muted mb-3">Current inventory, pricing, payment plans and the on-ground status of facilities should be confirmed directly with the {{ $site->name }} sales office.</p>
                     </div>
-                    <div class="d-flex flex-wrap gap-3 mt-2 pt-3 border-top">
-                      <a href="{{ route('project.detail') }}?id={{ $p->slug }}" class="btn btn-gold"><i class="fa-solid fa-circle-info me-1" aria-hidden="true"></i> View Details{{ $p->packages->count() ? ' & Plans' : '' }}</a>
-                      <a href="{{ route('properties') }}?project={{ $p->slug }}" class="btn btn-outline-gold"><i class="fa-solid {{ $isFarm ? 'fa-tree' : 'fa-building' }} me-1" aria-hidden="true"></i> {{ $isFarm ? 'Explore Farmhouse Land' : 'View ' . $p->name . ' Plots' }}</a>
+                    <div class="d-flex flex-wrap gap-2 mt-2 pt-3 border-top">
+                      <a href="#{{ $p->slug }}-properties" class="btn btn-gold"><i class="fa-solid fa-building me-1" aria-hidden="true"></i> Properties ({{ $p->availableProps->count() }})</a>
+                      @if($p->videos->count())<a href="#{{ $p->slug }}-videos" class="btn btn-outline-gold"><i class="fa-solid fa-film me-1" aria-hidden="true"></i> Videos</a>@endif
+                      @if($p->layouts->count() || $p->locations->count())<a href="#{{ $p->slug }}-maps" class="btn btn-outline-gold"><i class="fa-solid fa-map me-1" aria-hidden="true"></i> Maps</a>@endif
                       <a href="{{ route('contact') }}" class="btn btn-outline-gold"><i class="fa-solid fa-headset me-1" aria-hidden="true"></i> Ask About Availability</a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            @include('partials.project-sections', ['p' => $p])
           </div>
         @endforeach
       </div>
     </div>
   </section>
+
+  <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content map-modal">
+        <div class="modal-header border-0 pb-0">
+          <h2 class="modal-title h6 fw-bold" id="mapModalTitle">Map</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><div class="map-zoom-wrap" id="mapZoomWrap"><img id="mapModalImg" src="" alt=""></div><p class="small text-muted text-center mt-2 mb-0">Click the map to zoom in or out.</p></div>
+      </div>
+    </div>
+  </div>
 @endsection
 
 @push('scripts')
+  <script src="{{ asset_v('/vendor/swiper/swiper-bundle.min.js') }}"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var btns = document.querySelectorAll('.project-filter-btn');
       var items = document.querySelectorAll('.project-item');
+      var slugs = Array.prototype.map.call(btns, function (b) { return b.getAttribute('data-filter'); })
+        .filter(function (f) { return f !== 'all'; })
+        .sort(function (a, b) { return b.length - a.length; });   // longest first, so "x-orchard" beats "x"
+
       function applyFilter(f) {
-        var matched = false;
         btns.forEach(function (b) {
           var on = b.getAttribute('data-filter') === f;
-          if (on) matched = true;
           b.classList.toggle('active', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
-        if (!matched) f = 'all';
         items.forEach(function (item) {
           item.hidden = !(f === 'all' || item.getAttribute('data-category') === f);
         });
-        return matched;
       }
 
       btns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          applyFilter(btn.getAttribute('data-filter'));
-        });
+        btn.addEventListener('click', function () { applyFilter(btn.getAttribute('data-filter')); });
       });
 
+      // #slug opens that project; #slug-videos / -maps / -plans / -properties / -sold jump inside it
       function fromHash() {
-        var slug = (location.hash || '').replace('#', '');
+        var hash = (location.hash || '').replace('#', '');
+        if (!hash) return;
+        var slug = slugs.filter(function (s) { return hash === s || hash.indexOf(s + '-') === 0; })[0];
         if (!slug) return;
-        if (applyFilter(slug)) {
-          var card = document.getElementById(slug);
-          if (card) window.requestAnimationFrame(function () {
-            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
+        applyFilter(slug);
+        if (hash === slug + '-sold') {
+          var t = document.getElementById('tab-sold-btn-' + slug);
+          if (t && window.bootstrap) bootstrap.Tab.getOrCreateInstance(t).show();
+          hash = slug + '-properties';
         }
+        var target = document.getElementById(hash);
+        if (target) window.requestAnimationFrame(function () { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
       }
       fromHash();
       window.addEventListener('hashchange', fromHash);
+
+      // ---- YouTube: load the player only when someone presses play (keeps the page fast).
+      // Delegated, so the thumbnail button keeps working after a slider restores it.
+      document.addEventListener('click', function (e) {
+        var b = e.target.closest('.yt-lite');
+        if (!b) return;
+        var f = document.createElement('iframe');
+        f.src = 'https://www.youtube-nocookie.com/embed/' + b.dataset.yt + '?autoplay=1&rel=0';
+        f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        f.allowFullscreen = true;
+        f.title = 'Project video';
+        b.replaceWith(f);
+      });
+
+      // ---- Video sliders (projects with more than one video)
+      var sliders = [];
+      if (window.Swiper) {
+        document.querySelectorAll('[data-video-slider]').forEach(function (root) {
+          var frames = root.querySelectorAll('.video-main .project-video-frame');
+          frames.forEach(function (fr) { fr.__orig = fr.innerHTML; });   // to put the lite thumbnail back after leaving a slide
+
+          var main = new Swiper(root.querySelector('.video-main'), {
+            spaceBetween: 24, speed: 450, rewind: true,
+            keyboard: { enabled: true, onlyInViewport: true },
+            noSwipingSelector: 'video, iframe, .yt-lite',      // dragging the player must not swipe the slider
+            observer: true, observeParents: true, observeSlideChildren: true
+          });
+
+          var title = root.querySelector('.video-now-title'), count = root.querySelector('.video-now-count');
+          function sync() {
+            var slide = main.slides[main.activeIndex];
+            title.textContent = slide ? slide.getAttribute('data-title') : '';
+            count.textContent = (main.activeIndex + 1) + ' / ' + main.slides.length;
+            // stop whatever was playing on the other slides
+            frames.forEach(function (fr, i) {
+              if (i === main.activeIndex) return;
+              var v = fr.querySelector('video'); if (v) v.pause();
+              if (fr.querySelector('iframe')) fr.innerHTML = fr.__orig;
+            });
+          }
+          main.on('slideChange', sync); sync();
+
+          root.querySelector('.video-prev').addEventListener('click', function () { main.slidePrev(); });
+          root.querySelector('.video-next').addEventListener('click', function () { main.slideNext(); });
+          root.classList.add('is-ready');
+          sliders.push(main);
+        });
+      }
+      // a project that was hidden by the filter has no width until it is shown again
+      document.querySelectorAll('.project-filter-btn').forEach(function (b) {
+        b.addEventListener('click', function () { setTimeout(function () { sliders.forEach(function (s) { s.update(); }); }, 30); });
+      });
+
+      // ---- Map zoom modal
+      var modalEl = document.getElementById('mapModal');
+      if (modalEl && window.bootstrap) {
+        var modal = new bootstrap.Modal(modalEl);
+        var img = document.getElementById('mapModalImg');
+        var wrap = document.getElementById('mapZoomWrap');
+        document.querySelectorAll('[data-map-src]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            img.src = b.dataset.mapSrc; img.alt = b.dataset.mapTitle;
+            document.getElementById('mapModalTitle').textContent = b.dataset.mapTitle;
+            wrap.classList.remove('is-zoomed');
+            modal.show();
+          });
+        });
+        wrap.addEventListener('click', function () { wrap.classList.toggle('is-zoomed'); });
+      }
+
+      // ---- Big lists: show the first 9 cards (6 on phones), the rest behind "Show more"
+      var LIMIT = window.matchMedia('(max-width: 767px)').matches ? 6 : 9;
+      document.querySelectorAll('[data-more-group]').forEach(function (row) {
+        var cards = row.children;
+        if (cards.length <= LIMIT) return;
+        for (var i = LIMIT; i < cards.length; i++) cards[i].classList.add('d-none');
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'btn btn-outline-gold mx-auto mt-4 d-flex';
+        btn.textContent = 'Show more (' + (cards.length - LIMIT) + ')';
+        row.after(btn);
+        btn.addEventListener('click', function () {
+          Array.prototype.forEach.call(cards, function (c) { c.classList.remove('d-none'); });
+          btn.remove();
+        });
+      });
     });
   </script>
 @endpush

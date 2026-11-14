@@ -17,7 +17,7 @@
   }
   .nav-projects-menu .dropdown-item:hover,
   .nav-projects-menu .dropdown-item:focus {
-    background: var(--primary-gold-light, #dcfce7); color: var(--primary-gold-dark, #15803d); font-weight: 600;
+    background: var(--primary-gold-light, #F8EDC4); color: var(--primary-gold-dark, #8F6B14); font-weight: 600;
   }
   .nav-projects-menu .dropdown-item.is-all { font-weight: 700; }
   .nav-projects-menu .menu-sep { height: 1px; background: var(--border-light, #e6e8ec); margin: 6px 4px; }
@@ -80,7 +80,7 @@
 <nav class="navbar navbar-expand-lg sticky-top navbar-custom navbar-light">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-      <img src="/assets/images/logo.svg" alt="{{ $site->name }}" class="brand-logo-img" style="height: 48px; width: auto;">
+      <span class="brand-logo-chip"><picture><source type="image/webp" srcset="/assets/images/logo.webp"><img src="/assets/images/logo.png" alt="{{ $site->name }}" class="brand-logo-img" width="80" height="84"></picture></span>
     </a>
     <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
       aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
