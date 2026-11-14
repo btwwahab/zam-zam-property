@@ -329,7 +329,9 @@ a { color: inherit; }
 }
 .badge-featured { background: rgba(212, 175, 55,0.16); color: var(--primary-gold-dark); }
 .badge-verified { background: rgba(16,185,129,0.14); color: var(--emerald); }
-.badge-hot      { background: rgba(239,68,68,0.12); color: var(--crimson); }
+.badge-hot,
+.badge-hotdeal,
+.badge-hot-deal { background: rgba(239,68,68,0.12); color: var(--crimson); }
 .badge-new      { background: rgba(59,130,246,0.12); color: var(--blue); }
 .badge-sold     { background: rgba(10,10,10,0.9); color: #F1D98A; }
 .badge-contacted{ background: rgba(245,158,11,0.16); color: #B45309; }

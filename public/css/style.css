@@ -216,6 +216,9 @@ a {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  /* readable default for any status the admin types (Featured / Hot Deal / Verified below override it) */
+  background: rgba(10, 10, 10, 0.82);
+  color: #fff;
 }
 
 .badge-status.featured {
@@ -223,7 +226,9 @@ a {
   color: var(--navy-dark);
 }
 
-.badge-status.hot {
+.badge-status.hot,
+.badge-status.hotdeal,
+.badge-status.hot-deal {
   background: var(--crimson-accent);
   color: white;
 }

@@ -163,7 +163,7 @@ class PropertyController extends Controller
             'size' => $v['size'] ?? null,
             'size_yds' => $v['size_yds'] ?? 0,
             'status' => $v['status'],
-            'status_class' => strtolower(str_replace(' ', '', $v['status'])),
+            'status_class' => $this->statusClass($v['status']),
             'featured' => $request->boolean('featured'),
             'is_sold' => $request->boolean('is_sold'),
             'image' => $gallery[0] ?? ($property?->image),
@@ -173,6 +173,14 @@ class PropertyController extends Controller
             'description' => $this->splitList($v['description'] ?? '', "\n"),
             'features' => $this->splitList($v['features'] ?? '', ','),
         ];
+    }
+
+    /** CSS class for the status badge: "Hot Deal" -> hot, "Verified" -> verified, anything else -> its lower-cased name. */
+    private function statusClass(string $status): string
+    {
+        $slug = strtolower(str_replace(' ', '', $status));
+
+        return $slug === 'hotdeal' ? 'hot' : $slug;
     }
 
     private function splitList(string $raw, string $sep): array
