@@ -70,6 +70,16 @@ class PublicController extends Controller
         ]);
     }
 
+    /** "5 Marla" -> 5, "1 Kanal" -> 20, "2.5 Kanal" -> 50. Unparseable text sorts last. */
+    private function sizeInMarla(string $size): float
+    {
+        if (preg_match('/([\d.]+)\s*(marla|kanal)/i', $size, $m)) {
+            return (float) $m[1] * (strtolower($m[2]) === 'kanal' ? 20 : 1);
+        }
+
+        return INF;
+    }
+
     /** Attach everything the Projects page shows for one project (info, plans, media, available + sold properties). */
     private function decorateProject(Project $p, bool $flip = false): Project
     {
@@ -82,9 +92,18 @@ class PublicController extends Controller
         $p->img = $p->image ?: 'project-placeholder';
         $hay = strtolower(($p->tag ?? '') . ' ' . $p->name . ' ' . $p->slug);
         $p->is_farm = str_contains($hay, 'farm') || str_contains($hay, 'orchard');
-        $p->sizes = $p->availableProps->pluck('size')->unique()->filter()->values();
         $p->flip = $flip;
         $p->packages = PlotPackage::where('project_slug', $p->slug)->orderBy('sort_order')->get();
+
+        // Plot sizes on offer = sizes of the available listings plus every size the project has a plan for
+        // (a plan-only size, or one whose listings are all sold, must still show), smallest first.
+        $p->sizes = $p->availableProps->pluck('size')
+            ->merge($p->packages->map(fn ($pkg) => $pkg->size_label))
+            ->map(fn ($s) => trim((string) $s))
+            ->filter()
+            ->unique(fn ($s) => strtolower($s))
+            ->sortBy(fn ($s) => $this->sizeInMarla($s))
+            ->values();
 
         $media = $p->media;
         $p->videos = $media->where('type', 'video')->values();

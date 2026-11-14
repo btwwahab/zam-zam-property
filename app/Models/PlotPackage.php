@@ -23,6 +23,19 @@ class PlotPackage extends Model
         return $this->size_kanal * 20;
     }
 
+    /** Short plot size as buyers say it: "5 Marla", "10 Marla", "1 Kanal", "2 Kanal", "30 Marla". */
+    public function getSizeLabelAttribute(): string
+    {
+        $marla = round($this->total_marla, 2);
+        $kanal = $marla / 20;
+
+        if ($marla >= 20 && floor($kanal) == $kanal) {
+            return rtrim(rtrim(number_format($kanal, 2, '.', ''), '0'), '.').' Kanal';
+        }
+
+        return rtrim(rtrim(number_format($marla, 2, '.', ''), '0'), '.').' Marla';
+    }
+
     public function getCashTotalAttribute(): float
     {
         return $this->total_marla * $this->price_cash_per_marla;
