@@ -20,7 +20,7 @@
       background-color: var(--navy-dark);
       background-image:
         linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-        url('/assets/images/farm-house-3.jpeg');
+        url('/assets/images/farm-house-3-bg.jpg');
       background-size: cover, cover;
       background-position: center, center;
       background-repeat: no-repeat;

@@ -100,6 +100,8 @@ class PublicController extends Controller
         return view('public.projects', [
             'active' => 'projects',
             'projects' => $projects,
+            // the slider library (~165 KB) is only sent when a project actually has several videos
+            'needsSwiper' => $projects->contains(fn (Project $p) => $p->videos->count() > 1),
         ]);
     }
 

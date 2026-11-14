@@ -32,7 +32,20 @@ class MediaStore
         imagealphablending($src, true);
         imagesavealpha($src, true);
 
-        imagewebp($src, "$dir/$base.webp", 82);
+        // Photos straight off a phone/camera are 3000-6000px; the site never shows them bigger
+        // than ~1600px, so cap the size (keeps every page light, e.g. the home hero image).
+        $maxEdge = 1600;
+        if (max(imagesx($src), imagesy($src)) > $maxEdge) {
+            $scaled = imagescale($src, imagesx($src) >= imagesy($src) ? $maxEdge : (int) round(imagesx($src) * $maxEdge / imagesy($src)), -1, IMG_BICUBIC);
+            if ($scaled) {
+                imagedestroy($src);
+                $src = $scaled;
+                imagealphablending($src, true);
+                imagesavealpha($src, true);
+            }
+        }
+
+        imagewebp($src, "$dir/$base.webp", 78);
         imagepng($src, "$dir/$base.png");
 
         // small variant (max 640w) used by card thumbnails

@@ -96,3 +96,17 @@ if (! function_exists('asset_v')) {
         return $path . '?v=' . $v;
     }
 }
+
+if (! function_exists('img_srcset')) {
+    /**
+     * srcset for an image in public/assets/images: the 640px "-sm" file for narrower slots and the full
+     * file for larger ones. Falls back to the single full-size file if there is no -sm variant.
+     */
+    function img_srcset(string $base): string
+    {
+        $full = "/assets/images/{$base}.webp";
+        $sm = "/assets/images/{$base}-sm.webp";
+
+        return is_file(public_path(ltrim($sm, '/'))) ? "$sm 640w, $full 1024w" : $full;
+    }
+}

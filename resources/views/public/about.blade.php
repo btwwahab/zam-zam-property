@@ -5,7 +5,7 @@
 
 @section('content')
   <section class="py-5 text-white cta-band">
-    <picture><source type="image/webp" srcset="/assets/images/gated_community_aerial.webp"><img class="cta-bg" src="/assets/images/gated_community_aerial.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+    <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="640px"><img class="cta-bg" src="/assets/images/gated_community_aerial.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
     <div class="container py-3">
       <div class="row align-items-center">
         <div class="col-md-8">
@@ -30,7 +30,7 @@
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6">
           <div class="showcase-media">
-            <picture><source type="image/webp" srcset="/assets/images/gated_community_aerial.webp"><img src="/assets/images/gated_community_aerial.png" alt="Aerial view of a planned housing society near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+            <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/gated_community_aerial.png" alt="Aerial view of a planned housing society near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(collect(explode(' ', $site->name))->map(fn($w) => $w[0] ?? '')->join('')), 0, 2) }}</span>
               <span><span class="sm-title d-block">Southern Bypass Corridor</span><span class="sm-sub">Khera Chowk &bull; Budhla Road, Multan</span></span>
@@ -53,7 +53,7 @@
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6 order-lg-2">
           <div class="showcase-media flip">
-            <picture><source type="image/webp" srcset="/assets/images/modern_villa_1kanal.webp"><img src="/assets/images/modern_villa_1kanal.png" alt="Modern house in a Multan housing society" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+            <picture><source type="image/webp" srcset="{{ img_srcset('modern_villa_1kanal') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/modern_villa_1kanal.png" alt="Modern house in a Multan housing society" width="1024" height="1024" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(preg_replace('/[^A-Z]/', '', strtoupper($navProjects->first()->name ?? 'RGC'))), 0, 3) ?: 'RGC' }}</span>
               <span><span class="sm-title d-block">{{ $navProjects->first()->name ?? 'Royal Grace City' }}</span><span class="sm-sub">Featured project</span></span>
@@ -161,7 +161,7 @@
   </section>
 
   <section class="section-padding cta-band text-white text-center">
-    <picture><source type="image/webp" srcset="/assets/images/golf_community_estate.webp"><img class="cta-bg" src="/assets/images/golf_community_estate.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+    <picture><source type="image/webp" srcset="{{ img_srcset('golf_community_estate') }}" sizes="640px"><img class="cta-bg" src="/assets/images/golf_community_estate.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
     <div class="container">
       <h2 class="fs-1 fw-bold text-white mb-3">{{ pc('about_cta_heading') }}</h2>
       <p class="text-light mx-auto mb-4" style="max-width: 600px;">{{ pc('about_cta_text') }}</p>

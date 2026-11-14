@@ -3,7 +3,7 @@
    Built with Bootstrap 5 Overrides, CSS Variables, & Custom Micro-Interactions
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+/* fonts are linked (non-blocking) in the page <head>; an @import here would add a second request chain */
 
 :root {
   /* Brand Color Palette */
@@ -1186,7 +1186,8 @@ a {
 /* Why Us Section Luxury Background */
 .why-us-section {
   position: relative;
-  background-image: url('../assets/images/farm-house-3.jpeg');
+  background-image: url('../assets/images/farm-house-3-bg.jpg');
+  background-image: image-set(url('../assets/images/farm-house-3-bg.webp') type('image/webp'), url('../assets/images/farm-house-3-bg.jpg') type('image/jpeg'));
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;

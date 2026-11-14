@@ -126,7 +126,7 @@
           @php $img = $p->image ?: 'gated_community_aerial'; @endphp
           <div class="col-lg-6">
             <article class="project-card">
-              <picture><source type="image/webp" srcset="/assets/images/{{ $img }}.webp"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+              <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
               <div class="project-card-overlay">
                 <span class="project-tag">{{ $p->tag ?: 'Development' }}</span>
                 <h3 class="fw-bold fs-2 text-white mb-1">{{ $p->name }}</h3>
@@ -190,7 +190,7 @@
           @php $img = $c->image ?: 'gated_community_aerial'; @endphp
           <div class="col-lg-3 col-md-6">
             <a class="cat-card h-100" href="{{ route('properties') }}?category={{ $c->slug }}">
-              <picture><source type="image/webp" srcset="/assets/images/{{ $img }}.webp"><img src="/assets/images/{{ $img }}.png" alt="{{ $c->name }} property near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+              <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 300px, (min-width: 576px) 50vw, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $c->name }} property near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
               <div class="cat-overlay">
                 <span class="cat-icon"><i class="fa-solid {{ $c->icon }}" aria-hidden="true"></i></span>
                 <h3 class="fw-bold h5">{{ $c->name }}</h3>
@@ -250,7 +250,7 @@
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6">
           <div class="showcase-media">
-            <picture><source type="image/webp" srcset="/assets/images/gated_community_aerial.webp"><img src="/assets/images/gated_community_aerial.png" alt="Southern Bypass property corridor, Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+            <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/gated_community_aerial.png" alt="Southern Bypass property corridor, Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(collect(explode(' ', $site->name))->map(fn($w) => $w[0] ?? '')->join('')), 0, 2) }}</span>
               <span><span class="sm-title d-block">Flagship Projects</span><span class="sm-sub">{{ $navProjects->pluck('name')->join(' • ') }}</span></span>
@@ -297,7 +297,7 @@
 
   {{-- ============ CTA ============ --}}
   <section class="section-padding cta-band text-white text-center">
-    <picture><source type="image/webp" srcset="/assets/images/gated_community_aerial.webp"><img class="cta-bg" src="/assets/images/gated_community_aerial.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+    <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="640px"><img class="cta-bg" src="/assets/images/gated_community_aerial.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
     <div class="container">
       <span class="badge-pill-tag gold mb-3"><i class="fa-solid fa-phone" aria-hidden="true"></i> {{ pc('home_cta_badge') }}</span>
       <h2 class="fs-1 fw-bold text-white mb-3">{{ pc('home_cta_heading') }}</h2>

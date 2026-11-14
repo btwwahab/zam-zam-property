@@ -4,7 +4,7 @@
 @section('description', $site->name . ' projects in Multan along the Southern Bypass corridor.')
 
 @section('head')
-  <link rel="stylesheet" href="{{ asset_v('/vendor/swiper/swiper-bundle.min.css') }}">
+  @if($needsSwiper)<link rel="stylesheet" href="{{ asset_v('/vendor/swiper/swiper-bundle.min.css') }}">@endif
   @verbatim
   <style>
     #projects-container { --bs-gutter-y: 4rem; }
@@ -65,7 +65,7 @@
               <div class="row g-0 align-items-stretch">
                 <div class="col-lg-6 {{ $flip ? 'order-lg-2' : '' }}">
                   <div class="project-img-wrapper">
-                    <picture><source type="image/webp" srcset="/assets/images/{{ $img }}.webp"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+                    <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" width="1024" height="1024" loading="lazy" decoding="async"></picture>
                     <span class="badge-status {{ $isFarm ? 'hot' : 'featured' }} position-absolute top-0 {{ $flip ? 'end-0' : 'start-0' }} m-4">{{ $tag ?: ($isFarm ? 'Farmhouse & Land' : 'Residential & Commercial') }}</span>
                   </div>
                 </div>
@@ -118,7 +118,7 @@
 @endsection
 
 @push('scripts')
-  <script src="{{ asset_v('/vendor/swiper/swiper-bundle.min.js') }}"></script>
+  @if($needsSwiper)<script src="{{ asset_v('/vendor/swiper/swiper-bundle.min.js') }}"></script>@endif
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var btns = document.querySelectorAll('.project-filter-btn');

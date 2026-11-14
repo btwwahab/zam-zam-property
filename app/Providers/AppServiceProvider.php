@@ -45,10 +45,17 @@ class AppServiceProvider extends ServiceProvider
                     'navCategories' => Category::orderBy('sort_order')->get(),
                     'navProjects' => Project::orderBy('sort_order')->get(),
                     'pages' => PageContent::map(),
-                    'imageAssets' => static::scanImages(),
                 ];
             }
             $view->with($shared);
+        });
+
+        // The image list (a scan of public/assets/images) is only used by admin screens;
+        // doing it for every public page view was wasted disk work.
+        View::composer(['layouts.admin', 'admin.*', 'components.*'], function ($view) {
+            static $assets = null;
+            $assets ??= static::scanImages();
+            $view->with('imageAssets', $assets);
         });
 
         // Sidebar item counts — only queried when the admin layout actually renders.
