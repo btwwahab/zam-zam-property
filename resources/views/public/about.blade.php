@@ -5,7 +5,7 @@
 
 @section('content')
   <section class="py-5 text-white cta-band">
-    <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="640px"><img class="cta-bg" src="/assets/images/gated_community_aerial.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+    <picture><source type="image/webp" srcset="{{ img_srcset('office-building') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/office-building.jpg" alt="{{ $site->name }} office in Al-Falah Model City, Mattital Road, Multan" width="1024" height="572" style="object-position: 65% center;" loading="lazy" decoding="async"></picture>
     <div class="container py-3">
       <div class="row align-items-center">
         <div class="col-md-8">
