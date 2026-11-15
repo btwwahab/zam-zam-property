@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\PageContentController;
 use App\Http\Controllers\Admin\PlotPackageController;
 use App\Http\Controllers\Admin\ProjectMediaController;
@@ -53,6 +54,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('properties/{property}/sold', [PropertyController::class, 'toggleSold'])->name('properties.sold');
         Route::resource('properties', PropertyController::class)->except(['show']);
         Route::resource('projects', ProjectController::class)->except(['show']);
+        Route::get('gallery', [GalleryController::class, 'index'])->name('gallery.index');
+        Route::get('gallery/{project}', [GalleryController::class, 'show'])->name('gallery.show');
         Route::post('projects/{project}/media', [ProjectMediaController::class, 'store'])->name('projects.media.store');
         Route::delete('project-media/{media}', [ProjectMediaController::class, 'destroy'])->name('projects.media.destroy');
         Route::resource('categories', CategoryController::class)->except(['show']);

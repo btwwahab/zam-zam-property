@@ -255,7 +255,10 @@ class ProjectPageTest extends TestCase
         $this->assertStringContainsString('href="'.route('gallery.project', 'demo-city').'"', $this->get('/')->getContent());
         $this->get('/gallery/no-such-project')->assertNotFound();
 
-        $this->actingAs($admin)->get(route('admin.projects.edit', $this->project))->assertOk()->assertSee('Photo gallery');
+        // admin: sidebar entry, per-project gallery manager, and a link from the project's edit page
+        $this->actingAs($admin)->get(route('admin.gallery.index'))->assertOk()->assertSee('2 photos');
+        $this->actingAs($admin)->get(route('admin.gallery.show', $this->project))->assertOk()->assertSee('Photo gallery')->assertSee('gallery_files[]', false);
+        $this->actingAs($admin)->get(route('admin.projects.edit', $this->project))->assertOk()->assertSee(route('admin.gallery.show', $this->project), false)->assertSee('Gallery');
 
         $first = $photos[0];
         $this->actingAs($admin)->delete(route('admin.projects.media.destroy', $first))->assertRedirect();
@@ -264,6 +267,12 @@ class ProjectPageTest extends TestCase
         $this->actingAs($admin)->delete(route('admin.projects.media.destroy', $photos[1]))->assertRedirect();
 
         $this->get('/gallery/demo-city')->assertOk()->assertSee('Photos coming soon');
+    }
+
+    public function test_admin_gallery_pages_need_login(): void
+    {
+        $this->get(route('admin.gallery.index'))->assertRedirect();
+        $this->get(route('admin.gallery.show', $this->project))->assertRedirect();
     }
 
     public function test_gallery_rejects_non_images(): void

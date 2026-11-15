@@ -65,6 +65,7 @@ class AppServiceProvider extends ServiceProvider
                 $counts = [
                     'propertiesCount' => Property::count(),
                     'projectsCount' => Project::count(),
+                    'galleryCount' => \App\Models\ProjectMedia::where('type', 'gallery')->count(),
                     'categoriesCount' => Category::count(),
                     'plotPackagesCount' => PlotPackage::count(),
                     'teamCount' => TeamMember::count(),
