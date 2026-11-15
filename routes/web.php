@@ -19,16 +19,22 @@ use Illuminate\Support\Facades\Route;
  |  Public site
  | ------------------------------------------------------------------------ */
 Route::get('/', [PublicController::class, 'home'])->name('home');
-Route::get('/index.html', [PublicController::class, 'home']);
-Route::get('/properties.html', [PublicController::class, 'properties'])->name('properties');
-Route::get('/property-detail.html', [PublicController::class, 'propertyDetail'])->name('property.detail');
-Route::get('/projects.html', [PublicController::class, 'projects'])->name('projects');
+Route::get('/properties', [PublicController::class, 'properties'])->name('properties');
+Route::get('/property-detail', [PublicController::class, 'propertyDetail'])->name('property.detail');
+Route::get('/projects', [PublicController::class, 'projects'])->name('projects');
+Route::get('/about', [PublicController::class, 'about'])->name('about');
+Route::get('/contact', [PublicController::class, 'contact'])->name('contact');
+Route::get('/privacy', [PublicController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [PublicController::class, 'terms'])->name('terms');
+
+// old ".html" addresses (bookmarks, Google, shared links) -> permanent redirect to the clean URL, query string kept
+foreach (['properties', 'property-detail', 'projects', 'about', 'contact', 'privacy', 'terms'] as $__page) {
+    Route::get("/{$__page}.html", fn (Request $r) => redirect('/' . $__page . ($r->getQueryString() ? '?' . $r->getQueryString() : ''), 301));
+}
+Route::get('/index.html', fn () => redirect('/', 301));
 // everything about a project now lives on the Projects page; keep old links working
 Route::get('/project-detail.html', fn (Request $r) => redirect(route('projects') . ($r->query('id') ? '#' . $r->query('id') : ''), 301));
-Route::get('/about.html', [PublicController::class, 'about'])->name('about');
-Route::get('/contact.html', [PublicController::class, 'contact'])->name('contact');
-Route::get('/privacy.html', [PublicController::class, 'privacy'])->name('privacy');
-Route::get('/terms.html', [PublicController::class, 'terms'])->name('terms');
+Route::get('/project-detail', fn (Request $r) => redirect(route('projects') . ($r->query('id') ? '#' . $r->query('id') : ''), 301));
 Route::post('/enquiries', [PublicController::class, 'storeEnquiry'])->name('enquiries.store');
 
 /* -------------------------------------------------------------------------

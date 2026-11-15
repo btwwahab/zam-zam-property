@@ -1,6 +1,6 @@
 /* ==========================================================================
    PRIMENEST - PROPERTY DETAIL VIEW
-   Renders property-detail.html from ?id= against window.PRIMENEST_PROPERTIES.
+   Renders /property-detail from ?id= against window.PRIMENEST_PROPERTIES.
    ========================================================================== */
 (function () {
   'use strict';
@@ -37,8 +37,8 @@
       mount('pd-header', '<div class="container"><h1 class="fs-3 fw-bold text-white mb-2">Property not found</h1>' +
         '<p class="text-light mb-0">This listing may have been sold or removed.</p></div>');
       mount('pd-content', '<div class="container text-center py-4">' +
-        '<a href="properties.html" class="btn btn-gold">Browse all properties</a></div>');
-      setTimeout(function () { location.replace('properties.html'); }, 2500);
+        '<a href="/properties" class="btn btn-gold">Browse all properties</a></div>');
+      setTimeout(function () { location.replace('/properties'); }, 2500);
       return;
     }
 
@@ -75,7 +75,7 @@
     m.setAttribute('content', content);
   }
   function injectJsonLd(p) {
-    var base = location.origin + location.pathname.replace(/property-detail\.html$/, '');
+    var base = location.origin + location.pathname.replace(/property-detail(\.html)?$/, '');
     var ld = {
       '@context': 'https://schema.org', '@type': 'Product', name: p.title,
       image: base + 'assets/images/' + p.image + '.webp',
@@ -100,8 +100,8 @@
       '<div class="row align-items-center g-3">' +
         '<div class="col-lg-8">' +
           '<nav aria-label="Breadcrumb" class="mb-2"><ol class="breadcrumb mb-0 small">' +
-            '<li class="breadcrumb-item"><a href="index.html" class="text-gold">Home</a></li>' +
-            '<li class="breadcrumb-item"><a href="properties.html" class="text-gold">Properties</a></li>' +
+            '<li class="breadcrumb-item"><a href="/" class="text-gold">Home</a></li>' +
+            '<li class="breadcrumb-item"><a href="/properties" class="text-gold">Properties</a></li>' +
             '<li class="breadcrumb-item active text-light" aria-current="page">' + esc(p.id) + '</li>' +
           '</ol></nav>' +
           '<div class="d-flex align-items-center gap-2 mb-2 flex-wrap">' +
@@ -202,7 +202,7 @@
           '<hr class="mb-4">' +
           (p.sold
             ? '<div class="alert alert-dark small py-2 px-3 mb-3" role="status"><strong>This property has been sold.</strong> Send an enquiry and we will share similar available options' +
-              (p.project ? ' &mdash; or <a href="projects.html#' + encodeURIComponent(p.project) + '-properties" class="alert-link">browse what is still available</a>' : '') + '.</div>'
+              (p.project ? ' &mdash; or <a href="/projects#' + encodeURIComponent(p.project) + '-properties" class="alert-link">browse what is still available</a>' : '') + '.</div>'
             : '') +
           '<h3 class="fw-bold text-navy h6 mb-3">Send an Enquiry</h3>' +
           '<form class="inquiry-form" novalidate>' +
@@ -235,9 +235,9 @@
           '<div class="property-badges"><span class="badge-status ' + s.statusClass + '">' + esc(s.status) + '</span></div>' +
           '<div class="property-price-tag">' + esc(s.priceFormatted) + '</div></div>' +
         '<div class="property-body"><div class="property-location"><i class="fa-solid fa-location-dot text-gold-ink" aria-hidden="true"></i> ' + esc(s.location) + '</div>' +
-          '<h3 class="property-title h6"><a href="property-detail.html?id=' + encodeURIComponent(s.id) + '" class="text-navy">' + esc(s.title) + '</a></h3>' +
+          '<h3 class="property-title h6"><a href="/property-detail?id=' + encodeURIComponent(s.id) + '" class="text-navy">' + esc(s.title) + '</a></h3>' +
           '<div class="property-footer"><span class="agent-name-mini">' + esc(a.name) + '</span>' +
-          '<a href="property-detail.html?id=' + encodeURIComponent(s.id) + '" class="btn btn-sm btn-outline-gold">Details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>' +
+          '<a href="/property-detail?id=' + encodeURIComponent(s.id) + '" class="btn btn-sm btn-outline-gold">Details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>' +
         '</div></article></div>';
     }).join('');
     return '<div class="container"><h2 class="section-title h3 mb-4">Similar Properties</h2><div class="row g-4">' + cards + '</div></div>';

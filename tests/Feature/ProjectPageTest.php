@@ -39,7 +39,7 @@ class ProjectPageTest extends TestCase
         $this->property('AV-1');
         $this->property('SO-1', true);
 
-        $html = $this->get('/projects.html')->assertOk()->getContent();
+        $html = $this->get('/projects')->assertOk()->getContent();
 
         // the Available pane is the one that is open by default
         $this->assertStringContainsString('class="tab-pane fade show active" id="tab-available-demo-city"', $html);
@@ -52,13 +52,13 @@ class ProjectPageTest extends TestCase
 
     public function test_old_project_detail_links_redirect_to_the_projects_page(): void
     {
-        $this->get('/project-detail.html?id=demo-city')->assertRedirect('/projects.html#demo-city')->assertStatus(301);
+        $this->get('/project-detail.html?id=demo-city')->assertRedirect('/projects#demo-city')->assertStatus(301);
     }
 
     public function test_no_sold_tab_when_nothing_is_sold(): void
     {
         $this->property('AV-1');
-        $this->get('/projects.html')->assertOk()->assertDontSee('id="tab-sold-btn-demo-city"', false);
+        $this->get('/projects')->assertOk()->assertDontSee('id="tab-sold-btn-demo-city"', false);
     }
 
     public function test_sold_properties_are_hidden_from_public_listings_but_their_page_still_resolves(): void
@@ -66,11 +66,11 @@ class ProjectPageTest extends TestCase
         $this->property('AV-1');
         $this->property('SO-1', true);
 
-        $listing = $this->get('/properties.html')->assertOk()->getContent();
+        $listing = $this->get('/properties')->assertOk()->getContent();
         $this->assertStringContainsString('"AV-1"', $listing);
         $this->assertStringNotContainsString('"SO-1"', $listing);
 
-        $detail = $this->get('/property-detail.html?id=SO-1')->assertOk()->getContent();
+        $detail = $this->get('/property-detail?id=SO-1')->assertOk()->getContent();
         $this->assertStringContainsString('"SO-1"', $detail);
     }
 
@@ -106,7 +106,7 @@ class ProjectPageTest extends TestCase
         $this->assertFileExists($path);
         $this->assertFileExists($thumb);
 
-        $html = $this->get('/projects.html')->assertOk()->getContent();
+        $html = $this->get('/projects')->assertOk()->getContent();
         $this->assertStringContainsString('data-yt="dQw4w9WgXcQ"', $html);
         $this->assertStringContainsString('/assets/maps/'.$layout->file, $html);
         $this->assertStringContainsString('google.com/maps/embed', $html);
@@ -137,7 +137,7 @@ class ProjectPageTest extends TestCase
         $this->assertStringNotContainsString('show active" id="pkgtab-other-city"', $home);
 
         // each project also shows only its own plans on the Projects page
-        $this->get('/projects.html')->assertOk()->assertSee('DemoCity Plan')->assertSee('OtherCity Plan');
+        $this->get('/projects')->assertOk()->assertSee('DemoCity Plan')->assertSee('OtherCity Plan');
     }
 
     public function test_cash_only_plan_shows_just_the_cash_price(): void
@@ -155,7 +155,7 @@ class ProjectPageTest extends TestCase
         $this->assertNull($cash->monthly_installment);
         $this->assertTrue($both->has_installment);
 
-        $html = $this->get('/projects.html')->assertOk()->getContent();
+        $html = $this->get('/projects')->assertOk()->getContent();
         [$cashCard, $bothCard] = [
             substr($html, strpos($html, 'CashOnly Plot'), 1800),
             substr($html, strpos($html, 'Both Plot'), 1800),
@@ -169,12 +169,12 @@ class ProjectPageTest extends TestCase
     public function test_several_videos_render_as_a_slider_and_one_video_stays_a_plain_player(): void
     {
         ProjectMedia::create(['project_id' => $this->project->id, 'type' => 'video', 'title' => 'One', 'url' => 'https://youtu.be/dQw4w9WgXcQ', 'sort_order' => 1]);
-        $html = $this->get('/projects.html')->assertOk()->getContent();
+        $html = $this->get('/projects')->assertOk()->getContent();
         $this->assertStringNotContainsString('<div class="video-slider" data-video-slider>', $html);
         $this->assertStringContainsString('data-yt="dQw4w9WgXcQ"', $html);
 
         ProjectMedia::create(['project_id' => $this->project->id, 'type' => 'video', 'title' => 'Two', 'url' => 'https://youtu.be/LXb3EKWsInQ', 'sort_order' => 2]);
-        $html = $this->get('/projects.html')->assertOk()->getContent();
+        $html = $this->get('/projects')->assertOk()->getContent();
         $this->assertStringContainsString('<div class="video-slider" data-video-slider>', $html);
         $this->assertSame(2, substr_count($html, 'class="swiper-slide" data-title='));
         $this->assertStringNotContainsString('video-thumb', $html);
@@ -200,7 +200,7 @@ class ProjectPageTest extends TestCase
 
     public function test_contact_form_offers_projects_as_preferred_location(): void
     {
-        $html = $this->get('/contact.html')->assertOk()->getContent();
+        $html = $this->get('/contact')->assertOk()->getContent();
 
         $this->assertMatchesRegularExpression('/<select id="c-society" name="society"[^>]*>.*<option value="Demo City"[^>]*>Demo City<\/option>/s', $html);
     }
@@ -210,5 +210,14 @@ class ProjectPageTest extends TestCase
         $html = $this->get('/')->assertOk()->getContent();
 
         $this->assertMatchesRegularExpression('/<select name="society"[^>]*>.*<option value="Demo City">Demo City<\/option>/s', $html);
+    }
+
+    public function test_old_html_addresses_redirect_to_clean_urls(): void
+    {
+        $this->get('/projects.html')->assertRedirect('/projects')->assertStatus(301);
+        $this->get('/about.html')->assertRedirect('/about')->assertStatus(301);
+        $this->get('/index.html')->assertRedirect('/')->assertStatus(301);
+        $this->get('/property-detail.html?id=SO-1')->assertRedirect('/property-detail?id=SO-1')->assertStatus(301);
+        $this->get('/contact')->assertOk();
     }
 }

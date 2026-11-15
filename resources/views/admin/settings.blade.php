@@ -57,8 +57,8 @@
 
       {{-- CTA plumbing kept so it isn't wiped on save --}}
       <input type="hidden" name="hero_poster" value="{{ $setting->hero_poster }}">
-      <input type="hidden" name="hero_cta_primary_link" value="{{ $setting->hero_cta_primary_link ?: '/properties.html' }}">
-      <input type="hidden" name="hero_cta_secondary_link" value="{{ $setting->hero_cta_secondary_link ?: '/contact.html' }}">
+      <input type="hidden" name="hero_cta_primary_link" value="{{ $setting->hero_cta_primary_link ?: '/properties' }}">
+      <input type="hidden" name="hero_cta_secondary_link" value="{{ $setting->hero_cta_secondary_link ?: '/contact' }}">
       <input type="hidden" name="hero_cta_primary_text" value="{{ $setting->hero_cta_primary_text ?: 'Explore Properties' }}">
       <input type="hidden" name="hero_cta_secondary_text" value="{{ $setting->hero_cta_secondary_text ?: 'Contact Us' }}">
 

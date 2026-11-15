@@ -63,12 +63,12 @@
         '</div>' +
         '<div class="property-body">' +
           '<div class="property-location"><i class="fa-solid fa-location-dot text-gold-ink" aria-hidden="true"></i> ' + esc(item.location) + '</div>' +
-          '<h3 class="property-title h6"><a href="property-detail.html?id=' + encodeURIComponent(item.id) + '" class="text-navy">' + esc(item.title) + '</a></h3>' +
+          '<h3 class="property-title h6"><a href="/property-detail?id=' + encodeURIComponent(item.id) + '" class="text-navy">' + esc(item.title) + '</a></h3>' +
           '<div class="property-specs">' + specs + '</div>' +
           '<div class="property-footer">' +
             '<div class="agent-mini"><span class="brand-icon brand-icon-xs bg-gold text-navy rounded-circle d-flex align-items-center justify-content-center">ZZ</span>' +
               '<span class="agent-name-mini">' + esc(item.projectName || 'Zam Zam Estate') + '</span></div>' +
-            '<a href="property-detail.html?id=' + encodeURIComponent(item.id) + '" class="btn btn-sm btn-outline-gold">Details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' +
+            '<a href="/property-detail?id=' + encodeURIComponent(item.id) + '" class="btn btn-sm btn-outline-gold">Details <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>' +
           '</div>' +
         '</div>' +
       '</article>' +
