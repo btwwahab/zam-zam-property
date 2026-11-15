@@ -109,6 +109,7 @@ class PublicController extends Controller
         $p->videos = $media->where('type', 'video')->values();
         $p->layouts = $media->where('type', 'layout')->values();
         $p->locations = $media->where('type', 'location')->values();
+        $p->gallery = $media->where('type', 'gallery')->values();
 
         return $p;
     }
@@ -124,6 +125,24 @@ class PublicController extends Controller
             // the slider library (~165 KB) is only sent when a project actually has several videos
             'needsSwiper' => $projects->contains(fn (Project $p) => $p->videos->count() > 1),
         ]);
+    }
+
+    /** Gallery landing page: one card per project, each opening that project's own gallery. */
+    public function gallery()
+    {
+        $projects = Project::with('media')->orderBy('sort_order')->get()->each(function (Project $p) {
+            $p->gallery = $p->media->where('type', 'gallery')->values();
+        });
+
+        return view('public.gallery', ['active' => 'gallery', 'projects' => $projects]);
+    }
+
+    public function galleryProject(string $slug)
+    {
+        $project = Project::with('media')->where('slug', $slug)->firstOrFail();
+        $project->gallery = $project->media->where('type', 'gallery')->values();
+
+        return view('public.gallery-project', ['active' => 'gallery', 'project' => $project]);
     }
 
     public function about()

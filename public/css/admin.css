@@ -872,3 +872,15 @@ a { color: inherit; }
 .upload-drop.is-compact .u-icon { font-size: 20px; margin-bottom: 6px; }
 .form-a.media-add .form-actions { margin-top: auto; padding-top: 16px; }
 @media (max-width: 700px) { .card-a-head .head-note { display: none; } .media-add-grid { grid-template-columns: 1fr; } }
+
+/* project gallery manager */
+.gal-admin { margin-bottom: 24px; padding: 20px; border: 1px solid var(--border-light); border-radius: var(--radius); background: var(--bg-white); }
+.gal-admin-head { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); }
+.gal-admin-head .hint { font-weight: 500; color: var(--text-muted); }
+.gal-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.gal-admin-item { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: #eee; }
+.gal-admin-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gal-admin-item form { position: absolute; top: 6px; right: 6px; margin: 0; }
+.gal-del { width: 26px; height: 26px; border: 0; border-radius: 50%; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.gal-del:hover { background: #dc2626; }
+.form-a.media-add.gal-add { border: 0; padding: 0; }

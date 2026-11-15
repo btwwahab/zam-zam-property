@@ -220,4 +220,59 @@ class ProjectPageTest extends TestCase
         $this->get('/property-detail.html?id=SO-1')->assertRedirect('/property-detail?id=SO-1')->assertStatus(301);
         $this->get('/contact')->assertOk();
     }
+
+    public function test_admin_can_add_several_gallery_photos_and_they_show_on_the_project_page(): void
+    {
+        $admin = User::factory()->create();
+        $store = route('admin.projects.media.store', $this->project);
+
+        $this->actingAs($admin)->post($store, ['type' => 'gallery', 'gallery_files' => [
+            UploadedFile::fake()->image('one.jpg', 2400, 1600),
+            UploadedFile::fake()->image('two.png', 900, 1200),
+        ]])->assertSessionHasNoErrors()->assertSessionHas('ok', '2 photos added to the gallery.');
+
+        $photos = $this->project->media()->where('type', 'gallery')->get();
+        $this->assertCount(2, $photos);
+        foreach ($photos as $g) {
+            $this->assertFileExists(public_path('assets/gallery/'.$g->file));
+            $this->assertFileExists(public_path('assets/gallery/'.$g->gallery_thumb));
+        }
+        $this->assertLessThanOrEqual(1800, getimagesize(public_path('assets/gallery/'.$photos[0]->file))[0]);
+
+        // the photos live on the Gallery pages, not on the Projects page
+        $projectsPage = $this->get('/projects')->assertOk()->getContent();
+        $this->assertStringNotContainsString('/assets/gallery/', $projectsPage);
+        $this->assertStringContainsString('href="'.route('gallery.project', 'demo-city').'"', $projectsPage);
+
+        $landing = $this->get('/gallery')->assertOk()->assertSee('Project Galleries')->assertSee('2 photos')->getContent();
+        $this->assertStringContainsString(route('gallery.project', 'demo-city'), $landing);
+
+        $page = $this->get('/gallery/demo-city')->assertOk()->getContent();
+        $this->assertStringContainsString('/assets/gallery/'.$photos[0]->file, $page);
+        $this->assertStringContainsString('/assets/gallery/'.$photos[1]->file, $page);
+
+        // navbar menu: "Gallery" with a link per project
+        $this->assertStringContainsString('href="'.route('gallery.project', 'demo-city').'"', $this->get('/')->getContent());
+        $this->get('/gallery/no-such-project')->assertNotFound();
+
+        $this->actingAs($admin)->get(route('admin.projects.edit', $this->project))->assertOk()->assertSee('Photo gallery');
+
+        $first = $photos[0];
+        $this->actingAs($admin)->delete(route('admin.projects.media.destroy', $first))->assertRedirect();
+        $this->assertFileDoesNotExist(public_path('assets/gallery/'.$first->file));
+        $this->assertFileDoesNotExist(public_path('assets/gallery/'.$first->gallery_thumb));
+        $this->actingAs($admin)->delete(route('admin.projects.media.destroy', $photos[1]))->assertRedirect();
+
+        $this->get('/gallery/demo-city')->assertOk()->assertSee('Photos coming soon');
+    }
+
+    public function test_gallery_rejects_non_images(): void
+    {
+        $admin = User::factory()->create();
+        $store = route('admin.projects.media.store', $this->project);
+        $this->actingAs($admin)->post($store, ['type' => 'gallery', 'gallery_files' => [UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')]])
+            ->assertSessionHasErrors('gallery_files.0');
+        $this->actingAs($admin)->post($store, ['type' => 'gallery'])->assertSessionHasErrors('gallery_files');
+        $this->assertSame(0, $this->project->media()->where('type', 'gallery')->count());
+    }
 }

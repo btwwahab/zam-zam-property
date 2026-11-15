@@ -94,7 +94,7 @@
       <ul class="navbar-nav mx-auto">
         <li class="nav-item"><a class="nav-link nav-link-custom {{ $active === 'home' ? 'active' : '' }}" href="{{ route('home') }}" @if($active === 'home') aria-current="page" @endif>Home</a></li>
         <li class="nav-item"><a class="nav-link nav-link-custom {{ $active === 'properties' ? 'active' : '' }}" href="{{ route('properties') }}" @if($active === 'properties') aria-current="page" @endif>Properties</a></li>
-        <li class="nav-item nav-projects">
+        <li class="nav-item nav-projects" data-nav-menu="projects">
           <a class="nav-link nav-link-custom {{ $active === 'projects' ? 'active' : '' }}" href="{{ route('projects') }}" @if($active === 'projects') aria-current="page" @endif>Projects<i class="fa-solid fa-chevron-down nav-caret" aria-hidden="true"></i></a>
           @if(!empty($navProjects) && count($navProjects))
           <ul class="nav-projects-menu">
@@ -102,6 +102,18 @@
             <li class="menu-sep" aria-hidden="true"></li>
             @foreach($navProjects as $np)
               <li><a class="dropdown-item" data-nav-slug="{{ $np->slug }}" href="{{ route('projects') }}#{{ $np->slug }}">{{ $np->name }}</a></li>
+            @endforeach
+          </ul>
+          @endif
+        </li>
+        <li class="nav-item nav-projects" data-nav-menu="gallery">
+          <a class="nav-link nav-link-custom {{ $active === 'gallery' ? 'active' : '' }}" href="{{ route('gallery') }}" @if($active === 'gallery') aria-current="page" @endif>Gallery<i class="fa-solid fa-chevron-down nav-caret" aria-hidden="true"></i></a>
+          @if(!empty($navProjects) && count($navProjects))
+          <ul class="nav-projects-menu">
+            <li><a class="dropdown-item is-all" data-nav-slug="all" href="{{ route('gallery') }}">All Galleries</a></li>
+            <li class="menu-sep" aria-hidden="true"></li>
+            @foreach($navProjects as $np)
+              <li><a class="dropdown-item" data-nav-slug="{{ $np->slug }}" href="{{ route('gallery.project', $np->slug) }}">{{ $np->name }}</a></li>
             @endforeach
           </ul>
           @endif
@@ -114,26 +126,26 @@
 </nav>
 <script>
   (function () {
-    var wrap = document.querySelector('.nav-projects');
-    if (!wrap) return;
-    var link = wrap.querySelector(':scope > .nav-link-custom');
-    var menu = wrap.querySelector(':scope > .nav-projects-menu');
-    if (!link || !menu) return;
     var mq = window.matchMedia('(max-width: 991.98px)');
-
-    link.addEventListener('click', function (e) {
-      if (!mq.matches) return;            // desktop keeps hover behaviour
-      e.preventDefault();                 // first tap opens the sub-menu
-      wrap.classList.toggle('is-open');
+    var wraps = document.querySelectorAll('.nav-projects');
+    wraps.forEach(function (wrap) {
+      var link = wrap.querySelector(':scope > .nav-link-custom');
+      var menu = wrap.querySelector(':scope > .nav-projects-menu');
+      if (!link || !menu) return;
+      link.addEventListener('click', function (e) {
+        if (!mq.matches) return;            // desktop keeps hover behaviour
+        e.preventDefault();                 // first tap opens the sub-menu
+        wrap.classList.toggle('is-open');
+      });
     });
     // reset when switching back to desktop
-    mq.addEventListener('change', function () { if (!mq.matches) wrap.classList.remove('is-open'); });
+    mq.addEventListener('change', function () { if (!mq.matches) wraps.forEach(function (w) { w.classList.remove('is-open'); }); });
   })();
 </script>
 <script>
-  /* highlight the project that is open on the Projects page inside the navbar dropdown */
-  window.markNavProject = function (slug) {
-    document.querySelectorAll('.nav-projects-menu [data-nav-slug]').forEach(function (a) {
+  /* highlight the project that is open (Projects page, or a project's gallery) inside its navbar dropdown */
+  window.markNavProject = function (slug, menu) {
+    document.querySelectorAll('.nav-projects[data-nav-menu="' + (menu || 'projects') + '"] .nav-projects-menu [data-nav-slug]').forEach(function (a) {
       var on = a.getAttribute('data-nav-slug') === slug;
       a.classList.toggle('is-current', on);
       if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');

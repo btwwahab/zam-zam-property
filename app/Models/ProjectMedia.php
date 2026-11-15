@@ -10,7 +10,7 @@ class ProjectMedia extends Model
 
     protected $guarded = [];
 
-    public const TYPES = ['video', 'layout', 'location'];
+    public const TYPES = ['video', 'layout', 'location', 'gallery'];
 
     public function project()
     {
@@ -63,6 +63,14 @@ class ProjectMedia extends Model
     public function getThumbFileAttribute(): ?string
     {
         return $this->type === 'layout' && $this->file
+            ? preg_replace('/\.webp$/', '-sm.webp', $this->file)
+            : null;
+    }
+
+    /** Small version of a gallery photo (the full file opens in the viewer). */
+    public function getGalleryThumbAttribute(): ?string
+    {
+        return $this->type === 'gallery' && $this->file
             ? preg_replace('/\.webp$/', '-sm.webp', $this->file)
             : null;
     }

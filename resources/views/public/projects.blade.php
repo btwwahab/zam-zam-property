@@ -20,20 +20,8 @@
     .project-content-wrap .badge-pill-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .feature-grid-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; margin: 20px 0; }
     .feature-grid-item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600; color: var(--navy-dark); }
-    .project-filter-btn { background: transparent; border: 2px solid var(--border-light); color: var(--text-main); font-weight: 600; padding: 10px 24px; border-radius: var(--radius-full); transition: var(--transition); }
-    .project-filter-btn.active, .project-filter-btn:hover { background: var(--navy-dark); border-color: var(--navy-dark); color: var(--primary-gold); }
     @media (max-width: 991px) { .project-img-wrapper { height: 260px; min-height: 0; } .project-content-wrap { padding: 28px; } }
-    /* phones: compact banner + one swipeable row of project pills instead of 4 wrapped rows */
-    @media (max-width: 575.98px) {
-      .page-banner-projects { min-height: 0; padding-top: 2.25rem !important; padding-bottom: 2rem !important; }
-      .page-banner-projects h1 { font-size: 1.6rem !important; }
-      .page-banner-projects p { font-size: .9rem; line-height: 1.5; } .page-banner-projects .container { padding-top: 0 !important; padding-bottom: 0 !important; }
-      #project-filters { position: relative; flex-wrap: nowrap !important; justify-content: flex-start !important; overflow-x: auto; gap: 8px !important; padding: 2px 16px 6px; margin: 0 -16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
-      #project-filters::-webkit-scrollbar { display: none; }
-      .project-filter-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 18px; font-size: .9rem; scroll-snap-align: center; }
-      .project-content-wrap { padding: 22px 18px; }
-      .project-img-wrapper { height: 220px; }
-    }
+    @media (max-width: 575.98px) { .project-content-wrap { padding: 22px 18px; } .project-img-wrapper { height: 220px; } }
   </style>
   @endverbatim
 @endsection
@@ -123,6 +111,7 @@
                       <a href="#{{ $p->slug }}" class="btn btn-gold pv-view-btn" data-view-project="{{ $p->slug }}">View Project <i class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></i></a>
                       <a href="#{{ $p->slug }}-properties" class="btn btn-gold pv-detail-btn"><i class="fa-solid fa-building me-1" aria-hidden="true"></i> Properties ({{ $p->availableProps->count() }})</a>
                       @if($p->videos->count())<a href="#{{ $p->slug }}-videos" class="btn btn-outline-gold pv-detail-btn"><i class="fa-solid fa-film me-1" aria-hidden="true"></i> Videos</a>@endif
+                      @if($p->gallery->count())<a href="{{ route('gallery.project', $p->slug) }}" class="btn btn-outline-gold pv-detail-btn"><i class="fa-solid fa-images me-1" aria-hidden="true"></i> Gallery</a>@endif
                       @if($p->layouts->count() || $p->locations->count())<a href="#{{ $p->slug }}-maps" class="btn btn-outline-gold pv-detail-btn"><i class="fa-solid fa-map me-1" aria-hidden="true"></i> Maps</a>@endif
                       <a href="{{ route('contact') }}" class="btn btn-outline-gold"><i class="fa-solid fa-headset me-1" aria-hidden="true"></i> Ask About Availability</a>
                     </div>
@@ -148,6 +137,7 @@
       </div>
     </div>
   </div>
+
 @endsection
 
 @push('scripts')
@@ -305,19 +295,27 @@
         wrap.addEventListener('click', function () { wrap.classList.toggle('is-zoomed'); });
       }
 
-      // ---- Big lists: show the first 9 cards (6 on phones), the rest behind "Show more"
+      // ---- Big lists: show the first 9 cards (6 on phones), the rest behind "Show more".
+      //      A list can set its own data-more-limit / data-more-step / data-more-label (the gallery: 6 at a time, "Load more").
       var LIMIT = window.matchMedia('(max-width: 767px)').matches ? 6 : 9;
       document.querySelectorAll('[data-more-group]').forEach(function (row) {
         var cards = row.children;
-        if (cards.length <= LIMIT) return;
-        for (var i = LIMIT; i < cards.length; i++) cards[i].classList.add('d-none');
+        var limit = parseInt(row.getAttribute('data-more-limit'), 10) || LIMIT;
+        var step = parseInt(row.getAttribute('data-more-step'), 10) || 0;
+        var label = row.getAttribute('data-more-label') || 'Show more';
+        if (cards.length <= limit) return;
+        for (var i = limit; i < cards.length; i++) cards[i].classList.add('d-none');
+        var shown = limit;
         var btn = document.createElement('button');
         btn.type = 'button'; btn.className = 'btn btn-outline-gold mx-auto mt-4 d-flex';
-        btn.textContent = 'Show more (' + (cards.length - LIMIT) + ')';
+        function paint() { btn.textContent = label + ' (' + (cards.length - shown) + ')'; }
+        paint();
         row.after(btn);
         btn.addEventListener('click', function () {
-          Array.prototype.forEach.call(cards, function (c) { c.classList.remove('d-none'); });
-          btn.remove();
+          var to = step ? Math.min(cards.length, shown + step) : cards.length;
+          for (var j = shown; j < to; j++) cards[j].classList.remove('d-none');
+          shown = to;
+          if (shown >= cards.length) btn.remove(); else paint();
         });
       });
     });

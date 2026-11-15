@@ -213,6 +213,71 @@ class MediaStore
         return $name;
     }
 
+    /**
+     * Store a gallery photo (finished work, site progress...) in public/assets/gallery as <name>.webp (max 1800px)
+     * plus <name>-sm.webp (700px, used in the grid). Phone photos are rotated by EXIF tags, which GD ignores,
+     * so the orientation is applied here. Returns the full file name or null.
+     */
+    public static function galleryImage(UploadedFile $file, string $hint = 'gallery'): ?string
+    {
+        if (! $file->isValid()) {
+            return null;
+        }
+        @ini_set('memory_limit', '512M');
+
+        $data = (string) file_get_contents($file->getRealPath());
+        $src = @imagecreatefromstring($data);
+        if (! $src) {
+            return null;
+        }
+
+        if (function_exists('exif_read_data') && in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg'], true)) {
+            $o = (int) (@exif_read_data($file->getRealPath())['Orientation'] ?? 1);
+            $angle = [3 => 180, 6 => -90, 8 => 90][$o] ?? 0;
+            if ($angle && ($rot = imagerotate($src, $angle, 0))) {
+                imagedestroy($src);
+                $src = $rot;
+            }
+        }
+
+        imagepalettetotruecolor($src);
+        imagealphablending($src, true);
+        imagesavealpha($src, true);
+
+        $fit = function ($img, int $edge) {
+            $w = imagesx($img);
+            $h = imagesy($img);
+            if (max($w, $h) <= $edge) {
+                return $img;
+            }
+            $r = $edge / max($w, $h);
+            $out = imagecreatetruecolor((int) round($w * $r), (int) round($h * $r));
+            imagealphablending($out, false);
+            imagesavealpha($out, true);
+            imagecopyresampled($out, $img, 0, 0, 0, 0, imagesx($out), imagesy($out), $w, $h);
+
+            return $out;
+        };
+
+        $dir = public_path('assets/gallery');
+        @mkdir($dir, 0775, true);
+        $base = Str::slug(Str::limit($hint, 40, '')) ?: 'gallery';
+        $name = $base.'-'.substr(md5(uniqid('', true)), 0, 8).'.webp';
+
+        $full = $fit($src, 1800);
+        imagewebp($full, "$dir/$name", 80);
+        $thumb = $fit($full, 700);
+        imagewebp($thumb, preg_replace('/\.webp$/', '-sm.webp', "$dir/$name"), 80);
+
+        foreach ([$thumb, $full, $src] as $img) {
+            if ($img instanceof \GdImage) {
+                @imagedestroy($img);
+            }
+        }
+
+        return $name;
+    }
+
     /** Remove a stored map image or uploaded project video by file name. */
     public static function forgetFile(string $sub, ?string $name): void
     {

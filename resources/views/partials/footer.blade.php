@@ -22,6 +22,7 @@
           <li><a href="{{ route('home') }}">Home</a></li>
           <li><a href="{{ route('about') }}">About</a></li>
           <li><a href="{{ route('projects') }}">Projects</a></li>
+          <li><a href="{{ route('gallery') }}">Gallery</a></li>
           <li><a href="{{ route('contact') }}">Contact</a></li>
           <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
           <li><a href="{{ route('terms') }}">Terms &amp; Conditions</a></li>

@@ -25,6 +25,11 @@ class ProjectMediaController extends Controller
             }
         }
 
+        // a form bigger than the server's post limit arrives completely empty
+        if (! $request->has('type') && (int) $request->server('CONTENT_LENGTH') > 0) {
+            throw ValidationException::withMessages(['gallery_files' => 'That upload was too large for the server. Add fewer photos at a time (about 10).']);
+        }
+
         $type = $request->validate(['type' => 'required|in:'.implode(',', ProjectMedia::TYPES)])['type'];
         $title = $request->validate(['title' => 'nullable|string|max:150'])['title'] ?? null;
 
@@ -58,6 +63,44 @@ class ProjectMediaController extends Controller
                 throw ValidationException::withMessages(['layout_file' => 'That image could not be processed. Please try another file.']);
             }
             $row['file'] = $name;
+        } elseif ($type === 'gallery') {
+            $files = array_values(array_filter((array) $request->file('gallery_files')));
+            foreach ($files as $f) {
+                if (! $f->isValid()) {
+                    $tooBig = in_array($f->getError(), [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true);
+                    throw ValidationException::withMessages([
+                        'gallery_files' => $tooBig ? 'One of the photos is too large for the server. Try a smaller photo.' : 'One of the uploads could not be read. Please try again.',
+                    ]);
+                }
+            }
+            $request->validate([
+                'gallery_files' => 'required|array|min:1|max:20',
+                'gallery_files.*' => 'image|max:12288',
+            ], [
+                'gallery_files.required' => 'Choose at least one photo.',
+                'gallery_files.max' => 'Add up to 20 photos at a time.',
+                'gallery_files.*.image' => 'Only JPG, PNG or WEBP photos can be added.',
+                'gallery_files.*.max' => 'A photo is too large (max 12 MB each).',
+            ]);
+
+            $order = (int) ProjectMedia::where('project_id', $project->id)->max('sort_order');
+            $added = 0;
+            foreach ($files as $f) {
+                $name = MediaStore::galleryImage($f, $project->slug.'-gallery');
+                if (! $name) {
+                    continue;
+                }
+                ProjectMedia::create([
+                    'project_id' => $project->id, 'type' => 'gallery', 'file' => $name,
+                    'title' => count($files) === 1 ? $title : null, 'sort_order' => ++$order,
+                ]);
+                $added++;
+            }
+            if (! $added) {
+                throw ValidationException::withMessages(['gallery_files' => 'Those photos could not be processed. Please try other files.']);
+            }
+
+            return back()->with('ok', $added === 1 ? 'Photo added to the gallery.' : "$added photos added to the gallery.");
         } else { // location
             $url = ProjectMedia::cleanMapUrl($request->input('location_url'));
             if (! $url) {
@@ -86,6 +129,9 @@ class ProjectMediaController extends Controller
         if ($media->type === 'layout') {
             MediaStore::forgetFile('maps', $media->file);
             MediaStore::forgetFile('maps', $media->thumb_file);
+        } elseif ($media->type === 'gallery') {
+            MediaStore::forgetFile('gallery', $media->file);
+            MediaStore::forgetFile('gallery', $media->gallery_thumb);
         } elseif ($media->type === 'video') {
             MediaStore::forgetFile('videos', $media->file);
         }
