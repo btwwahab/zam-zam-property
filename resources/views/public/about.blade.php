@@ -52,11 +52,17 @@
     <div class="container">
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6 order-lg-2">
-          <div class="showcase-media flip">
-            <picture><source type="image/webp" srcset="{{ img_srcset('modern_villa_1kanal') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/modern_villa_1kanal.png" alt="Modern house in a Multan housing society" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+          @php
+              // featured project on this card: Al Falah Model City (falls back to the first project)
+              $featured = $navProjects->firstWhere('slug', 'al-falah-model-city') ?? $navProjects->first();
+              $featImg = $featured->image ?? 'modern_villa_1kanal';
+              $featName = $featured->name ?? 'Al Falah Model City';
+            @endphp
+            <div class="showcase-media flip">
+            <picture><source type="image/webp" srcset="{{ img_srcset($featImg) }}" sizes="(min-width: 992px) 560px, 100vw"><img src="{{ img_src($featImg) }}" alt="{{ $featName }}" width="1024" height="1024" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
-              <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(preg_replace('/[^A-Z]/', '', strtoupper($navProjects->first()->name ?? 'RGC'))), 0, 3) ?: 'RGC' }}</span>
-              <span><span class="sm-title d-block">{{ $navProjects->first()->name ?? 'Royal Grace City' }}</span><span class="sm-sub">Featured project</span></span>
+              <span class="sm-mono">{{ \Illuminate\Support\Str::substr(preg_replace('/[^A-Z]/', '', strtoupper($featName)), 0, 3) ?: 'ZZ' }}</span>
+              <span><span class="sm-title d-block">{{ $featName }}</span><span class="sm-sub">Featured project</span></span>
             </div>
           </div>
         </div>
