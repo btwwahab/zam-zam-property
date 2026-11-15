@@ -107,6 +107,15 @@ if (! function_exists('img_srcset')) {
         $full = "/assets/images/{$base}.webp";
         $sm = "/assets/images/{$base}-sm.webp";
 
-        return is_file(public_path(ltrim($sm, '/'))) ? "$sm 640w, $full 1024w" : $full;
+        if (! is_file(public_path(ltrim($sm, '/')))) {
+            return $full;
+        }
+
+        // describe the full file by its real width (uploads are up to 1600px, seeded art is 1024px),
+        // otherwise the browser under-estimates it and picks the 640px file for a larger, cropped slot
+        static $widths = [];
+        $widths[$base] ??= max(640, (int) (@getimagesize(public_path(ltrim($full, '/')))[0] ?? 1024));
+
+        return "$sm 640w, $full {$widths[$base]}w";
     }
 }

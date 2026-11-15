@@ -134,7 +134,7 @@
               @php $img = $p->image ?: 'project-placeholder'; @endphp
               <div class="swiper-slide">
                 <article class="project-card">
-                  <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+                  <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
                   <div class="project-card-overlay">
                     <span class="project-tag">{{ $p->tag ?: 'Development' }}</span>
                     <h3 class="fw-bold fs-2 text-white mb-1">{{ $p->name }}</h3>
@@ -201,15 +201,42 @@
   {{-- ============ WHY US ============ --}}
   <section class="section-padding why-us-section text-white position-relative overflow-hidden">
     <div class="why-us-bg-overlay"></div>
+    @php
+      $whyItems = pc_list('home_why_items');
+      // the stage shows the company's own projects (those with a real photo; placeholder if none have one yet)
+      $whyShots = $navProjects->filter(fn ($p) => $p->image)->values()
+        ->map(fn ($p) => ['img' => $p->image, 'name' => $p->name])->all();
+      if (!$whyShots) {
+        $whyShots = $navProjects->values()->map(fn ($p) => ['img' => 'project-placeholder', 'name' => $p->name])->all()
+          ?: [['img' => 'project-placeholder', 'name' => '']];
+      }
+      $shotCount = count($whyShots);
+    @endphp
     <div class="container position-relative" style="z-index: 2;">
-      <div class="text-center section-header">
-        <span class="badge-pill-tag gold mb-3"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> {{ pc('home_why_badge') }}</span>
-        <h2 class="fs-1 fw-bold text-white mb-0">{{ pc('home_why_heading') }}</h2>
+      <div class="why-head">
+        <span class="why-eyebrow">{{ pc('home_why_badge') }}</span>
+        <h2 class="fw-bold text-white why-heading">{{ pc('home_why_heading') }}</h2>
       </div>
-      <div class="row g-4">
-        @foreach(pc_list('home_why_items') as $it)
-          <div class="col-lg-4 col-md-6"><div class="feature-tile"><span class="icon-badge mb-4"><i class="fa-solid {{ $it['icon'] }}" aria-hidden="true"></i></span><h3 class="fw-bold text-white h5 mb-2">{{ $it['title'] }}</h3><p class="text-light small mb-0">{{ $it['text'] }}</p></div></div>
-        @endforeach
+      <div class="why-stage" data-why-stage>
+        <div class="why-visual" aria-hidden="true">
+          @foreach($whyShots as $k => $shot)
+            <figure class="why-shot {{ $loop->first ? 'is-active' : '' }}" data-why-shot>
+              <picture><source type="image/webp" srcset="{{ img_srcset($shot['img']) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="/assets/images/{{ $shot['img'] }}.png" alt="" width="1024" height="1024" decoding="async" @if(!$loop->first) loading="lazy" @endif></picture>
+            </figure>
+          @endforeach
+          <span class="why-corner tl"></span><span class="why-corner br"></span>
+          <div class="why-bignum" data-why-bignum>01</div>
+          <div class="why-chip"><span class="why-chip-ico"><i class="fa-solid {{ $whyItems[0]['icon'] ?? 'fa-star' }}" data-why-chip-ico aria-hidden="true"></i></span><span class="why-chip-txt"><span data-why-chip-title>{{ $whyItems[0]['title'] ?? '' }}</span><small data-why-chip-sub>{{ $whyShots[0]['name'] }}</small></span></div>
+        </div>
+        <div class="why-list" role="tablist" aria-label="{{ pc('home_why_heading') }}">
+          @foreach($whyItems as $i => $it)
+            <button type="button" class="why-row {{ $loop->first ? 'is-active' : '' }}" role="tab" aria-selected="{{ $loop->first ? 'true' : 'false' }}" data-why-row data-shot="{{ $i % $shotCount }}" data-icon="{{ $it['icon'] }}" data-title="{{ $it['title'] }}" data-sub="{{ $whyShots[$i % $shotCount]['name'] }}">
+              <span class="why-row-head"><span class="why-no">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span><span class="why-row-title">{{ $it['title'] }}</span><i class="fa-solid fa-arrow-right why-row-arrow" aria-hidden="true"></i></span>
+              <span class="why-row-body"><span class="why-row-text">{{ $it['text'] }}</span></span>
+              <span class="why-bar"><i></i></span>
+            </button>
+          @endforeach
+        </div>
       </div>
     </div>
   </section>
@@ -286,7 +313,7 @@
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6">
           <div class="showcase-media">
-            <picture><source type="image/webp" srcset="{{ img_srcset('office-building') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/office-building.jpg" alt="{{ $site->name }} office in Al-Falah Model City, Mattital Road, Multan" width="1024" height="572" style="object-position: 65% center;" loading="lazy" decoding="async"></picture>
+            <picture><source type="image/webp" srcset="{{ img_srcset('office-building') }}" sizes="(min-width: 992px) 900px, 100vw"><img src="/assets/images/office-building.jpg" alt="{{ $site->name }} office in Al-Falah Model City, Mattital Road, Multan" width="1024" height="572" style="object-position: 65% center;" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(collect(explode(' ', $site->name))->map(fn($w) => $w[0] ?? '')->join('')), 0, 2) }}</span>
               <span><span class="sm-title d-block">Flagship Projects</span><span class="sm-sub">{{ $navProjects->pluck('name')->join(' • ') }}</span></span>
@@ -427,3 +454,57 @@
   </script>
 @endpush
 @endif
+
+@push('scripts')
+  <script>
+  (function () {
+    var stage = document.querySelector('[data-why-stage]');
+    if (!stage) return;
+    var rows = [].slice.call(stage.querySelectorAll('[data-why-row]'));
+    var shots = [].slice.call(stage.querySelectorAll('[data-why-shot]'));
+    var big = stage.querySelector('[data-why-bignum]');
+    var chipT = stage.querySelector('[data-why-chip-title]');
+    var chipI = stage.querySelector('[data-why-chip-ico]');
+    var chipS = stage.querySelector('[data-why-chip-sub]');
+    if (!rows.length) return;
+    var DUR = 6000, idx = 0, timer = null, paused = false, visible = false;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    stage.style.setProperty('--why-dur', DUR + 'ms');
+    function show(i) {
+      idx = (i + rows.length) % rows.length;
+      rows.forEach(function (r, k) {
+        var on = k === idx;
+        r.classList.toggle('is-active', on);
+        r.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on) { r.classList.remove('is-run'); void r.offsetWidth; r.classList.add('is-run'); }
+        else r.classList.remove('is-run');
+      });
+      var si = parseInt(rows[idx].getAttribute('data-shot'), 10) || 0;
+      shots.forEach(function (s, k) { s.classList.toggle('is-active', k === si); });
+      if (chipS) chipS.textContent = rows[idx].getAttribute('data-sub') || '';
+      if (big) big.textContent = String(idx + 1).padStart(2, '0');
+      if (chipT) chipT.textContent = rows[idx].getAttribute('data-title');
+      if (chipI) chipI.className = 'fa-solid ' + rows[idx].getAttribute('data-icon');
+    }
+    function stop() { clearTimeout(timer); timer = null; }
+    function schedule() {
+      stop();
+      if (reduce || paused || !visible) return;
+      timer = setTimeout(function () { show(idx + 1); schedule(); }, DUR);
+    }
+    rows.forEach(function (r, k) {
+      r.addEventListener('click', function () { show(k); schedule(); });
+      r.addEventListener('mouseenter', function () { paused = true; stop(); rows[idx].classList.add('is-paused'); });
+      r.addEventListener('mouseleave', function () { paused = false; rows[idx].classList.remove('is-paused'); show(idx); schedule(); });
+      r.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); rows[idx].focus(); schedule(); }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); rows[idx].focus(); schedule(); }
+      });
+    });
+    show(0);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (en) { visible = en[0].isIntersecting; visible ? (show(idx), schedule()) : stop(); }, { threshold: 0.35 }).observe(stage);
+    } else { visible = true; schedule(); }
+  })();
+  </script>
+@endpush
