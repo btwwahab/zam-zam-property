@@ -23,6 +23,17 @@
     .project-filter-btn { background: transparent; border: 2px solid var(--border-light); color: var(--text-main); font-weight: 600; padding: 10px 24px; border-radius: var(--radius-full); transition: var(--transition); }
     .project-filter-btn.active, .project-filter-btn:hover { background: var(--navy-dark); border-color: var(--navy-dark); color: var(--primary-gold); }
     @media (max-width: 991px) { .project-img-wrapper { height: 260px; min-height: 0; } .project-content-wrap { padding: 28px; } }
+    /* phones: compact banner + one swipeable row of project pills instead of 4 wrapped rows */
+    @media (max-width: 575.98px) {
+      .page-banner-projects { min-height: 0; padding-top: 2.25rem !important; padding-bottom: 2rem !important; }
+      .page-banner-projects h1 { font-size: 1.6rem !important; }
+      .page-banner-projects p { font-size: .9rem; line-height: 1.5; } .page-banner-projects .container { padding-top: 0 !important; padding-bottom: 0 !important; }
+      #project-filters { position: relative; flex-wrap: nowrap !important; justify-content: flex-start !important; overflow-x: auto; gap: 8px !important; padding: 2px 16px 6px; margin: 0 -16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+      #project-filters::-webkit-scrollbar { display: none; }
+      .project-filter-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 18px; font-size: .9rem; scroll-snap-align: center; }
+      .project-content-wrap { padding: 22px 18px; }
+      .project-img-wrapper { height: 220px; }
+    }
   </style>
   @endverbatim
 @endsection
@@ -155,6 +166,11 @@
           b.classList.toggle('active', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
+        // keep the selected pill visible inside the swipeable strip on phones (scrolls the strip only, not the page)
+        var strip = document.getElementById('project-filters'), cur = strip && strip.querySelector('.project-filter-btn.active');
+        if (strip && cur && strip.scrollWidth > strip.clientWidth) {
+          strip.scrollTo({ left: cur.offsetLeft - (strip.clientWidth - cur.offsetWidth) / 2, behavior: 'smooth' });
+        }
         items.forEach(function (item) {
           item.hidden = !(f === 'all' || item.getAttribute('data-category') === f);
         });
