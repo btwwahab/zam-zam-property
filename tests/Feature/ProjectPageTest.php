@@ -197,4 +197,18 @@ class ProjectPageTest extends TestCase
         $this->post(route('admin.projects.media.store', $this->project), ['type' => 'video'])->assertRedirect();
         $this->assertSame(0, ProjectMedia::count());
     }
+
+    public function test_contact_form_offers_projects_as_preferred_location(): void
+    {
+        $html = $this->get('/contact.html')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/<select id="c-society" name="society"[^>]*>.*<option value="Demo City"[^>]*>Demo City<\/option>/s', $html);
+    }
+
+    public function test_home_hero_form_has_a_project_dropdown(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('/<select name="society"[^>]*>.*<option value="Demo City">Demo City<\/option>/s', $html);
+    }
 }

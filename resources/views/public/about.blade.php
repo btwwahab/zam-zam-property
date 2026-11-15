@@ -4,7 +4,7 @@
 @section('description', pc('about_hero_sub'))
 
 @section('content')
-  <section class="py-5 text-white cta-band">
+  <section class="py-5 text-white cta-band page-banner">
     <picture><source type="image/webp" srcset="/assets/images/hero-slide-sm.webp 640w, /assets/images/hero-slide.webp 1920w" sizes="100vw"><img class="cta-bg" src="/assets/images/hero-slide.webp" alt="" aria-hidden="true" width="1920" height="1072" style="object-position: 50% 62%;" decoding="async"></picture>
     <div class="container py-3">
       <div class="row align-items-center">

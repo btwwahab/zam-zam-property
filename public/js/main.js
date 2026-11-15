@@ -9,10 +9,157 @@
   function boot() {
     // Each init is isolated — a failure in one must never stop the others
     // (especially the enquiry form binding).
-    [initNavbarScroll, initCounters, initHeroSearchTabs, initHeroSlider,
+    [initNavbarScroll, initCounters, initHeroSearchTabs, initHeroSlider, initCustomSelects,
      window.initDetailActions, window.initEnquiryForms].forEach(function (fn) {
       try { fn(); } catch (e) { if (window.console) console.error('init failed:', e); }
     });
+  }
+
+
+  /* ---- Styled dropdowns ----------------------------------------------------
+     A plain <select> opens the OS's own list, which can't be styled and looks
+     different on every device. Every public <select class="form-select"> is
+     therefore driven from a styled trigger + option list; the real <select>
+     stays in the DOM (hidden) for form submit, validation and scripts that
+     read or set .value. The hero form has its own hand-built version and is
+     skipped. ------------------------------------------------------------- */
+  function initCustomSelects() {
+    var uid = 0;
+    var valueDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+    var all = [];
+
+    function closeAll(except) {
+      all.forEach(function (x) { if (x !== except) x.close(); });
+    }
+
+    function enhance(sel) {
+      if (sel.dataset.sx || sel.closest('.hero-select') || sel.multiple || sel.size > 1) return;
+      sel.dataset.sx = '1';
+      var id = 'sx' + (++uid);
+      var small = sel.classList.contains('form-select-sm');
+
+      var wrap = document.createElement('div');
+      wrap.className = 'sx' + (small ? ' sx-sm' : '');
+      if (sel.style.width) { wrap.style.width = sel.style.width; sel.style.width = ''; }
+      sel.parentNode.insertBefore(wrap, sel);
+      wrap.appendChild(sel);
+      sel.classList.add('sx-native');
+      sel.tabIndex = -1;
+      sel.setAttribute('aria-hidden', 'true');
+
+      var trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'sx-trigger form-select' + (small ? ' form-select-sm' : '');
+      trigger.setAttribute('aria-haspopup', 'listbox');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.id = id + '-btn';
+      var label = document.createElement('span');
+      label.className = 'sx-label';
+      trigger.appendChild(label);
+
+      var menu = document.createElement('ul');
+      menu.className = 'sx-menu';
+      menu.setAttribute('role', 'listbox');
+      menu.hidden = true;
+      var lab = sel.id && document.querySelector('label[for="' + sel.id + '"]');
+      if (lab) { trigger.setAttribute('aria-labelledby', lab.id || (lab.id = id + '-lab')); }
+      wrap.appendChild(trigger);
+      wrap.appendChild(menu);
+
+      var items = [];
+      function build() {
+        menu.innerHTML = '';
+        items = [];
+        Array.prototype.forEach.call(sel.options, function (o) {
+          var li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          li.textContent = o.textContent;
+          li.dataset.value = o.value;
+          if (o.disabled) li.classList.add('is-disabled');
+          li.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (o.disabled) return;
+            choose(o.index);
+          });
+          menu.appendChild(li);
+          items.push(li);
+        });
+        sync();
+      }
+      function sync() {
+        var i = sel.selectedIndex;
+        var o = sel.options[i];
+        label.textContent = o ? o.textContent : '';
+        trigger.classList.toggle('is-placeholder', !o || o.value === '');
+        items.forEach(function (li, k) {
+          li.classList.toggle('is-selected', k === i);
+          li.setAttribute('aria-selected', k === i ? 'true' : 'false');
+        });
+      }
+      function choose(i) {
+        var changed = sel.selectedIndex !== i;
+        sel.selectedIndex = i;
+        sync();
+        close();
+        trigger.focus();
+        if (changed) {
+          sel.dispatchEvent(new Event('input', { bubbles: true }));
+          sel.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+      function open() {
+        closeAll(api);
+        menu.hidden = false;
+        wrap.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+        // flip upwards when there is not enough room below
+        wrap.classList.remove('sx-up');
+        var r = trigger.getBoundingClientRect();
+        var need = Math.min(menu.scrollHeight, 300) + 12;
+        if (window.innerHeight - r.bottom < need && r.top > need) wrap.classList.add('sx-up');
+        var cur = menu.querySelector('.is-selected');
+        if (cur) menu.scrollTop = Math.max(0, cur.offsetTop - 60);
+      }
+      function close() {
+        menu.hidden = true;
+        wrap.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+      var api = { close: close };
+      all.push(api);
+
+      trigger.addEventListener('click', function () { menu.hidden ? open() : close(); });
+      trigger.addEventListener('keydown', function (e) {
+        var k = e.key;
+        if (k === 'Escape') { close(); return; }
+        if (k === 'ArrowDown' || k === 'ArrowUp') {
+          e.preventDefault();
+          if (menu.hidden) { open(); return; }
+          var n = sel.selectedIndex + (k === 'ArrowDown' ? 1 : -1);
+          while (sel.options[n] && sel.options[n].disabled) n += (k === 'ArrowDown' ? 1 : -1);
+          if (sel.options[n]) { sel.selectedIndex = n; sync(); sel.dispatchEvent(new Event('change', { bubbles: true })); }
+        }
+      });
+      if (lab) lab.addEventListener('click', function (e) { e.preventDefault(); trigger.focus(); });
+
+      // scripts that set select.value = ... (URL filters, reset buttons) keep the label in step
+      try {
+        Object.defineProperty(sel, 'value', {
+          configurable: true,
+          get: function () { return valueDesc.get.call(this); },
+          set: function (v) { valueDesc.set.call(this, v); sync(); }
+        });
+      } catch (e) { /* no-op */ }
+      sel.addEventListener('change', sync);
+      if (sel.form) sel.form.addEventListener('reset', function () { setTimeout(sync, 0); });
+      new MutationObserver(build).observe(sel, { childList: true });
+
+      build();
+    }
+
+    document.querySelectorAll('select.form-select').forEach(enhance);
+    document.addEventListener('click', function (e) { if (!e.target.closest('.sx')) closeAll(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
   }
 
   /* ---- Navbar sticky state ------------------------------------------------ */

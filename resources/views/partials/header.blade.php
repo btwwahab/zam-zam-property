@@ -20,6 +20,10 @@
     background: var(--primary-gold-light, #F8EDC4); color: var(--primary-gold-dark, #8F6B14); font-weight: 600;
   }
   .nav-projects-menu .dropdown-item.is-all { font-weight: 700; }
+  .nav-projects-menu .dropdown-item.is-current {
+    background: var(--primary-gold-light, #F8EDC4); color: var(--primary-gold-dark, #8F6B14); font-weight: 700;
+    box-shadow: inset 3px 0 0 var(--primary-gold, #D4AF37);
+  }
   .nav-projects-menu .menu-sep { height: 1px; background: var(--border-light, #e6e8ec); margin: 6px 4px; }
 
   @media (min-width: 992px) {
@@ -94,10 +98,10 @@
           <a class="nav-link nav-link-custom {{ $active === 'projects' ? 'active' : '' }}" href="{{ route('projects') }}" @if($active === 'projects') aria-current="page" @endif>Projects<i class="fa-solid fa-chevron-down nav-caret" aria-hidden="true"></i></a>
           @if(!empty($navProjects) && count($navProjects))
           <ul class="nav-projects-menu">
-            <li><a class="dropdown-item is-all" href="{{ route('projects') }}">All Projects</a></li>
+            <li><a class="dropdown-item is-all" data-nav-slug="all" href="{{ route('projects') }}">All Projects</a></li>
             <li class="menu-sep" aria-hidden="true"></li>
             @foreach($navProjects as $np)
-              <li><a class="dropdown-item" href="{{ route('projects') }}#{{ $np->slug }}">{{ $np->name }}</a></li>
+              <li><a class="dropdown-item" data-nav-slug="{{ $np->slug }}" href="{{ route('projects') }}#{{ $np->slug }}">{{ $np->name }}</a></li>
             @endforeach
           </ul>
           @endif
@@ -125,4 +129,14 @@
     // reset when switching back to desktop
     mq.addEventListener('change', function () { if (!mq.matches) wrap.classList.remove('is-open'); });
   })();
+</script>
+<script>
+  /* highlight the project that is open on the Projects page inside the navbar dropdown */
+  window.markNavProject = function (slug) {
+    document.querySelectorAll('.nav-projects-menu [data-nav-slug]').forEach(function (a) {
+      var on = a.getAttribute('data-nav-slug') === slug;
+      a.classList.toggle('is-current', on);
+      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+  };
 </script>

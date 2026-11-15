@@ -4,7 +4,9 @@
 @section('description', 'Browse residential, commercial and farmhouse property opportunities in Multan with ' . $site->name . '.')
 
 @section('content')
-  <section class="bg-navy py-5 text-white position-relative">
+  <section class="py-5 text-white cta-band page-banner page-banner-properties">
+    @php $__b = 'banner-farm'; @endphp
+    <picture><source type="image/webp" srcset="{{ img_srcset($__b) }}" sizes="100vw"><img class="cta-bg" src="{{ img_src($__b) }}" alt="" aria-hidden="true" width="1600" height="893" decoding="async"></picture>
     <div class="container py-3">
       <div class="row align-items-center">
         <div class="col-md-8">

@@ -82,6 +82,21 @@
                   @foreach($navCategories as $c)<li data-value="{{ $c->name }}">{{ $c->name }}</li>@endforeach
                 </ul>
               </div>
+              <div class="hero-field hero-select" data-hero-select>
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                <span class="hero-select-label" data-hero-select-label aria-hidden="true">Select Project</span>
+                <i class="fa-solid fa-chevron-down hero-select-caret" aria-hidden="true"></i>
+                <select name="society" class="hero-select-native form-select" aria-label="Preferred project">
+                  <option value="">Select Project</option>
+                  @foreach($navProjects as $p)<option value="{{ $p->name }}">{{ $p->name }}</option>@endforeach
+                  <option value="Not sure yet">Not sure yet</option>
+                </select>
+                <ul class="hero-select-menu" hidden aria-hidden="true">
+                  <li data-value="" class="is-selected">Select Project</li>
+                  @foreach($navProjects as $p)<li data-value="{{ $p->name }}">{{ $p->name }}</li>@endforeach
+                  <li data-value="Not sure yet">Not sure yet</li>
+                </ul>
+              </div>
               <div class="hero-field hero-field-textarea">
                 <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
                 <textarea name="message" class="form-control" rows="2" placeholder="Message (optional)"></textarea>

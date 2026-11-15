@@ -14,17 +14,37 @@
     .project-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
     .project-hero-card:hover .project-img-wrapper img { transform: scale(1.05); }
     .project-content-wrap { padding: 40px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+    /* every project card is the same size, so every photo is the same size */
+    @media (min-width: 992px) { .project-hero-card { display: flex; flex-direction: column; } .project-hero-card > .row { flex: 1 1 auto; } .project-img-wrapper { min-height: 0; } }
+    .project-content-wrap h2 + p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .project-content-wrap .badge-pill-tag { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .feature-grid-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; margin: 20px 0; }
     .feature-grid-item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600; color: var(--navy-dark); }
     .project-filter-btn { background: transparent; border: 2px solid var(--border-light); color: var(--text-main); font-weight: 600; padding: 10px 24px; border-radius: var(--radius-full); transition: var(--transition); }
     .project-filter-btn.active, .project-filter-btn:hover { background: var(--navy-dark); border-color: var(--navy-dark); color: var(--primary-gold); }
-    @media (max-width: 991px) { .project-img-wrapper { min-height: 240px; } .project-content-wrap { padding: 28px; } }
+    @media (max-width: 991px) { .project-img-wrapper { height: 260px; min-height: 0; } .project-content-wrap { padding: 28px; } }
   </style>
   @endverbatim
 @endsection
 
 @section('content')
-  <section class="bg-navy py-5 text-white position-relative">
+  <section class="py-5 text-white cta-band page-banner page-banner-projects">
+    @php
+      // default banner (the "All" view); each project then shows its own photo when it is selected
+      $__default = optional($projects->firstWhere('slug', 'al-falah-model-city'))->image ?: ($projects->first(fn ($x) => $x->image)->image ?? 'hero-slide');
+    @endphp
+    <div class="banner-stack" data-banner-stack aria-hidden="true">
+      <figure class="banner-shot is-active" data-banner-slug="all">
+        <picture><source type="image/webp" srcset="{{ img_srcset($__default) }}" sizes="100vw"><img class="cta-bg" src="{{ img_src($__default) }}" alt="" width="1600" height="893" decoding="async"></picture>
+      </figure>
+      @foreach($projects as $p)
+        @if($p->image)
+          <figure class="banner-shot" data-banner-slug="{{ $p->slug }}">
+            <picture><source type="image/webp" srcset="{{ img_srcset($p->image) }}" sizes="100vw"><img class="cta-bg" src="{{ img_src($p->image) }}" alt="" width="1600" height="893" loading="lazy" decoding="async"></picture>
+          </figure>
+        @endif
+      @endforeach
+    </div>
     <div class="container py-3">
       <div class="row align-items-center">
         <div class="col-md-8">
@@ -57,7 +77,7 @@
 
   <section class="section-padding bg-light">
     <div class="container">
-      <div class="row g-5" id="projects-container">
+      <div class="row g-5" id="projects-container" data-view="all">
         @foreach($projects as $p)
           @php $img = $p->img; $isFarm = $p->is_farm; $sizes = $p->sizes; $flip = $p->flip; $tag = $p->tag; @endphp
           <div class="col-12 project-item" data-category="{{ $p->slug }}">
@@ -88,9 +108,11 @@
                       <p class="small text-muted mb-3">Current inventory, pricing, payment plans and the on-ground status of facilities should be confirmed directly with the {{ $site->name }} sales office.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2 mt-2 pt-3 border-top">
-                      <a href="#{{ $p->slug }}-properties" class="btn btn-gold"><i class="fa-solid fa-building me-1" aria-hidden="true"></i> Properties ({{ $p->availableProps->count() }})</a>
-                      @if($p->videos->count())<a href="#{{ $p->slug }}-videos" class="btn btn-outline-gold"><i class="fa-solid fa-film me-1" aria-hidden="true"></i> Videos</a>@endif
-                      @if($p->layouts->count() || $p->locations->count())<a href="#{{ $p->slug }}-maps" class="btn btn-outline-gold"><i class="fa-solid fa-map me-1" aria-hidden="true"></i> Maps</a>@endif
+                      {{-- "All" view: one View Project button; a single project's view: jump links to its sections --}}
+                      <a href="#{{ $p->slug }}" class="btn btn-gold pv-view-btn" data-view-project="{{ $p->slug }}">View Project <i class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></i></a>
+                      <a href="#{{ $p->slug }}-properties" class="btn btn-gold pv-detail-btn"><i class="fa-solid fa-building me-1" aria-hidden="true"></i> Properties ({{ $p->availableProps->count() }})</a>
+                      @if($p->videos->count())<a href="#{{ $p->slug }}-videos" class="btn btn-outline-gold pv-detail-btn"><i class="fa-solid fa-film me-1" aria-hidden="true"></i> Videos</a>@endif
+                      @if($p->layouts->count() || $p->locations->count())<a href="#{{ $p->slug }}-maps" class="btn btn-outline-gold pv-detail-btn"><i class="fa-solid fa-map me-1" aria-hidden="true"></i> Maps</a>@endif
                       <a href="{{ route('contact') }}" class="btn btn-outline-gold"><i class="fa-solid fa-headset me-1" aria-hidden="true"></i> Ask About Availability</a>
                     </div>
                   </div>
@@ -136,16 +158,53 @@
         items.forEach(function (item) {
           item.hidden = !(f === 'all' || item.getAttribute('data-category') === f);
         });
+        // banner photo follows the selected project (falls back to the default one)
+        var shots = document.querySelectorAll('[data-banner-slug]');
+        var want = Array.prototype.some.call(shots, function (x) { return x.getAttribute('data-banner-slug') === f; }) ? f : 'all';
+        shots.forEach(function (x) { x.classList.toggle('is-active', x.getAttribute('data-banner-slug') === want); });
+        if (window.markNavProject) window.markNavProject(f);   // navbar dropdown shows which project is open
+        // "All" = just the project cards; one project = its card + videos / maps / properties
+        var box = document.getElementById('projects-container');
+        if (box) box.setAttribute('data-view', f === 'all' ? 'all' : 'single');
+        setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 60);   // let sliders re-measure
+        equalize();
       }
 
+      // all project cards (and so all photos) get the height of the tallest one — desktop only
+      function equalize() {
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.project-hero-card'));
+        cards.forEach(function (c) { c.style.minHeight = ''; });
+        if (window.innerWidth < 992) return;
+        var shown = cards.filter(function (c) { return c.offsetParent !== null; });
+        var h = 0;
+        shown.forEach(function (c) { h = Math.max(h, c.getBoundingClientRect().height); });
+        if (h) shown.forEach(function (c) { c.style.minHeight = Math.ceil(h) + 'px'; });
+      }
+      window.addEventListener('resize', function () { clearTimeout(equalize.t); equalize.t = setTimeout(equalize, 120); });
+      window.addEventListener('load', equalize);
+
       btns.forEach(function (btn) {
-        btn.addEventListener('click', function () { applyFilter(btn.getAttribute('data-filter')); });
+        btn.addEventListener('click', function () {
+          applyFilter(btn.getAttribute('data-filter'));
+          if (btn.getAttribute('data-filter') === 'all') { try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+        });
+      });
+      // "View Project" on a card opens that project's page view (same page, filtered) and jumps to it
+      document.querySelectorAll('[data-view-project]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          var slug = a.getAttribute('data-view-project');
+          applyFilter(slug);
+          try { history.pushState(null, '', '#' + slug); } catch (err) { location.hash = slug; }
+          var bar = document.getElementById('project-filters');
+          window.scrollTo({ top: Math.max(0, (bar ? bar.getBoundingClientRect().top + window.pageYOffset : 0) - 110), behavior: 'smooth' });
+        });
       });
 
       // #slug opens that project; #slug-videos / -maps / -plans / -properties / -sold jump inside it
       function fromHash() {
         var hash = (location.hash || '').replace('#', '');
-        if (!hash) return;
+        if (!hash) { applyFilter('all'); return; }
         var slug = slugs.filter(function (s) { return hash === s || hash.indexOf(s + '-') === 0; })[0];
         if (!slug) return;
         applyFilter(slug);
@@ -158,6 +217,7 @@
         if (target) window.requestAnimationFrame(function () { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
       }
       fromHash();
+      (function () { var a = document.querySelector('.project-filter-btn.active'); if (window.markNavProject) window.markNavProject(a ? a.getAttribute('data-filter') : 'all'); })();
       window.addEventListener('hashchange', fromHash);
 
       // ---- YouTube: load the player only when someone presses play (keeps the page fast).

@@ -4,7 +4,9 @@
 @section('description', pc('contact_hero_sub'))
 
 @section('content')
-  <section class="bg-navy py-5 text-white">
+  <section class="py-5 text-white cta-band page-banner">
+    @php $__b = 'office-building'; @endphp
+    <picture><source type="image/webp" srcset="{{ img_srcset($__b) }}" sizes="100vw"><img class="cta-bg" src="{{ img_src($__b) }}" alt="" aria-hidden="true" width="1600" height="893" decoding="async"></picture>
     <div class="container py-3 text-center">
       <span class="badge-pill-tag gold mb-2">{{ pc('contact_hero_badge') }}</span>
       <h1 class="fs-1 fw-bold text-white mb-2">{{ pc('contact_hero_heading') }}</h1>
@@ -74,7 +76,11 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small fw-bold text-navy" for="c-society">Preferred Location</label>
-                  <input type="text" id="c-society" name="society" class="form-control" placeholder="e.g. {{ $navProjects->pluck('name')->join(' / ') }}">
+                  <select id="c-society" name="society" class="form-select">
+                    <option value="">Select a project...</option>
+                    @foreach($navProjects as $p)<option value="{{ $p->name }}" @selected(old('society') === $p->name || request('project') === $p->slug)>{{ $p->name }}</option>@endforeach
+                    <option value="Not sure yet">Not sure yet</option>
+                  </select>
                 </div>
                 <div class="col-12">
                   <label class="form-label small fw-bold text-navy" for="c-message">Message</label>
