@@ -5,7 +5,7 @@
 
 @section('content')
   <section class="py-5 text-white cta-band">
-    <picture><source type="image/webp" srcset="{{ img_srcset('office-building') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/office-building.jpg" alt="{{ $site->name }} office in Al-Falah Model City, Mattital Road, Multan" width="1024" height="572" style="object-position: 65% center;" loading="lazy" decoding="async"></picture>
+    <picture><source type="image/webp" srcset="/assets/images/hero-slide-sm.webp 640w, /assets/images/hero-slide.webp 1920w" sizes="100vw"><img class="cta-bg" src="/assets/images/hero-slide.webp" alt="" aria-hidden="true" width="1920" height="1072" style="object-position: 50% 62%;" decoding="async"></picture>
     <div class="container py-3">
       <div class="row align-items-center">
         <div class="col-md-8">
@@ -30,7 +30,7 @@
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6">
           <div class="showcase-media">
-            <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/gated_community_aerial.png" alt="Aerial view of a planned housing society near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+            <picture><source type="image/webp" srcset="{{ img_srcset('office-building') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/office-building.jpg" alt="{{ $site->name }} office in Al-Falah Model City, Mattital Road, Multan" width="1024" height="572" style="object-position: 65% center;" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(collect(explode(' ', $site->name))->map(fn($w) => $w[0] ?? '')->join('')), 0, 2) }}</span>
               <span><span class="sm-title d-block">Al-Falah Model City</span><span class="sm-sub">Mattital Road, Multan</span></span>
