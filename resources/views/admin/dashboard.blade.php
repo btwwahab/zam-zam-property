@@ -10,7 +10,7 @@
   <div class="stat-grid">
     <div class="stat-card"><span class="stat-ico tone-gold"><i class="fa-solid fa-building"></i></span><div class="stat-val">{{ $totalProperties }}</div><div class="stat-lbl">Total Properties</div><div class="stat-delta">Across {{ $projectsCount }} projects</div></div>
     <div class="stat-card"><span class="stat-ico tone-amber"><i class="fa-solid fa-star"></i></span><div class="stat-val">{{ $featuredCount }}</div><div class="stat-lbl">Featured Listings</div><div class="stat-delta">Shown on homepage</div></div>
-    <div class="stat-card"><span class="stat-ico tone-blue"><i class="fa-solid fa-diagram-project"></i></span><div class="stat-val">{{ $projectsCount }}</div><div class="stat-lbl">Projects</div><div class="stat-delta">{{ $byProject->pluck('name')->join(', ') }}</div></div>
+    <div class="stat-card"><span class="stat-ico tone-blue"><i class="fa-solid fa-diagram-project"></i></span><div class="stat-val">{{ $projectsCount }}</div><div class="stat-lbl">Projects</div><div class="stat-delta" title="{{ $byProject->pluck('name')->join(', ') }}">Live on the website</div></div>
     <div class="stat-card"><span class="stat-ico tone-green"><i class="fa-solid fa-envelope"></i></span><div class="stat-val">{{ $newEnquiries }}</div><div class="stat-lbl">New Enquiries</div><div class="stat-delta"><span class="up">{{ $totalEnquiries }} total</span> logged</div></div>
   </div>
 
