@@ -284,4 +284,42 @@ class ProjectPageTest extends TestCase
         $this->actingAs($admin)->post($store, ['type' => 'gallery'])->assertSessionHasErrors('gallery_files');
         $this->assertSame(0, $this->project->media()->where('type', 'gallery')->count());
     }
+
+    public function test_gallery_order_sets_the_cover_photo_shown_on_the_gallery_landing_page(): void
+    {
+        $admin = User::factory()->create();
+        $store = route('admin.projects.media.store', $this->project);
+        $this->actingAs($admin)->post($store, ['type' => 'gallery', 'gallery_files' => [
+            UploadedFile::fake()->image('a.jpg', 900, 600), UploadedFile::fake()->image('b.jpg', 900, 600),
+        ]])->assertSessionHasNoErrors();
+        [$a, $b] = $this->project->media()->where('type', 'gallery')->get()->all();
+
+        // first uploaded = cover
+        $this->assertStringContainsString($a->gallery_thumb, $this->get('/gallery')->getContent());
+        $this->assertStringNotContainsString($b->gallery_thumb, $this->get('/gallery')->getContent());
+
+        // drag B to the front
+        $this->actingAs($admin)->postJson(route('admin.gallery.reorder', $this->project), ['order' => [$b->id, $a->id]])->assertOk();
+        $landing = $this->get('/gallery')->getContent();
+        $this->assertStringContainsString($b->gallery_thumb, $landing);
+        $this->assertStringNotContainsString($a->gallery_thumb, $landing);
+
+        // and the project's own gallery follows the same order
+        $page = $this->get('/gallery/demo-city')->getContent();
+        $this->assertLessThan(strpos($page, $a->file), strpos($page, $b->file));
+
+        // ids from another project, or junk, cannot be reordered / are ignored
+        $this->actingAs($admin)->postJson(route('admin.gallery.reorder', $this->project), ['order' => [999999, $a->id, $b->id]])->assertOk();
+        $this->assertSame([$a->id, $b->id], $this->project->media()->where('type', 'gallery')->pluck('id')->all());
+        $this->actingAs($admin)->postJson(route('admin.gallery.reorder', $this->project), [])->assertStatus(422);
+
+        foreach ([$a, $b] as $m) {
+            $this->actingAs($admin)->delete(route('admin.projects.media.destroy', $m));
+        }
+    }
+
+    public function test_gallery_reorder_needs_login(): void
+    {
+        $this->postJson(route('admin.gallery.reorder', $this->project), ['order' => [1]])->assertUnauthorized();
+    }
 }

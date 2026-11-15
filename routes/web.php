@@ -56,6 +56,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('projects', ProjectController::class)->except(['show']);
         Route::get('gallery', [GalleryController::class, 'index'])->name('gallery.index');
         Route::get('gallery/{project}', [GalleryController::class, 'show'])->name('gallery.show');
+        Route::post('gallery/{project}/reorder', [GalleryController::class, 'reorder'])->name('gallery.reorder');
         Route::post('projects/{project}/media', [ProjectMediaController::class, 'store'])->name('projects.media.store');
         Route::delete('project-media/{media}', [ProjectMediaController::class, 'destroy'])->name('projects.media.destroy');
         Route::resource('categories', CategoryController::class)->except(['show']);

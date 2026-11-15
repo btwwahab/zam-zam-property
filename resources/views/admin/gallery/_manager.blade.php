@@ -6,10 +6,13 @@
           </div>
 
           @if($gallery->count())
-            <div class="gal-admin-grid">
+            <p class="fld-help" style="margin:0 0 10px"><i class="fa-solid fa-grip"></i> Drag photos to change their order. The <strong>first photo</strong> is the cover shown on the website&rsquo;s Gallery page.<span data-reorder-status style="margin-left:8px;font-weight:700"></span></p>
+            <div class="gal-admin-grid" data-reorder-url="{{ route('admin.gallery.reorder', $project) }}">
               @foreach($gallery as $g)
-                <div class="gal-admin-item">
-                  <img src="/assets/gallery/{{ is_file(public_path('assets/gallery/' . $g->gallery_thumb)) ? $g->gallery_thumb : $g->file }}" alt="{{ $g->title ?: 'Gallery photo' }}" loading="lazy">
+                <div class="gal-admin-item" draggable="true" data-id="{{ $g->id }}">
+                  <img src="/assets/gallery/{{ is_file(public_path('assets/gallery/' . $g->gallery_thumb)) ? $g->gallery_thumb : $g->file }}" alt="{{ $g->title ?: 'Gallery photo' }}" loading="lazy" draggable="false">
+                  <span class="gal-cover-tag"><i class="fa-solid fa-star"></i> Cover</span>
+                  <button type="button" class="gal-star" data-make-cover title="Make this the cover photo"><i class="fa-solid fa-star"></i> Set as cover</button>
                   <form method="POST" action="{{ route('admin.projects.media.destroy', $g) }}" data-confirm="Remove this photo from the gallery?">
                     @csrf @method('DELETE')
                     <button class="gal-del" title="Remove photo"><i class="fa-solid fa-xmark"></i></button>
@@ -62,6 +65,42 @@
       try { var dt = new DataTransfer(); out.forEach(function (f) { dt.items.add(f); }); input.files = dt.files; } catch (e) {}
       if (status) status.textContent = out.length + ' photo' + (out.length > 1 ? 's' : '') + ' ready to add.';
     });
+  });
+})();
+</script>
+
+<script>
+// drag to reorder (and "Set as cover" for touch screens); the order is saved as soon as it changes
+(function () {
+  var grid = document.querySelector('.gal-admin-grid[data-reorder-url]'); if (!grid) return;
+  var status = document.querySelector('[data-reorder-status]');
+  var token = (document.querySelector('input[name=_token]') || {}).value;
+  var dragging = null;
+  function say(t, bad) { if (!status) return; status.textContent = t; status.style.color = bad ? '#dc2626' : '#059669'; if (!bad) setTimeout(function () { status.textContent = ''; }, 2200); }
+  function save() {
+    var ids = Array.prototype.map.call(grid.querySelectorAll('.gal-admin-item'), function (e) { return parseInt(e.getAttribute('data-id'), 10); });
+    fetch(grid.getAttribute('data-reorder-url'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token }, body: JSON.stringify({ order: ids }) })
+      .then(function (r) { if (!r.ok) throw 0; say('Order saved'); })
+      .catch(function () { say('Could not save the order — refresh and try again', true); });
+  }
+  grid.addEventListener('dragstart', function (e) {
+    var it = e.target.closest('.gal-admin-item'); if (!it) return;
+    dragging = it; it.classList.add('is-dragging'); e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', it.getAttribute('data-id')); } catch (x) {}
+  });
+  grid.addEventListener('dragover', function (e) {
+    if (!dragging) return; e.preventDefault();
+    var over = e.target.closest('.gal-admin-item'); if (!over || over === dragging) return;
+    var r = over.getBoundingClientRect();
+    var after = (e.clientX - r.left) > r.width / 2;
+    grid.insertBefore(dragging, after ? over.nextSibling : over);
+  });
+  grid.addEventListener('drop', function (e) { if (dragging) e.preventDefault(); });
+  grid.addEventListener('dragend', function () { if (!dragging) return; dragging.classList.remove('is-dragging'); dragging = null; save(); });
+  grid.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-make-cover]'); if (!b) return;
+    var it = b.closest('.gal-admin-item'); grid.insertBefore(it, grid.firstElementChild); save();
+    grid.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
 })();
 </script>
