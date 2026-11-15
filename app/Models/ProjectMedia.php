@@ -62,9 +62,15 @@ class ProjectMedia extends Model
     /** Small version of a map image used in the page grid (the full file opens in the zoom view). */
     public function getThumbFileAttribute(): ?string
     {
-        return $this->type === 'layout' && $this->file
+        return $this->type === 'layout' && $this->file && ! $this->is_pdf
             ? preg_replace('/\.webp$/', '-sm.webp', $this->file)
             : null;
+    }
+
+    /** A map uploaded as a PDF (vector, stays sharp at any zoom) rather than an image. */
+    public function getIsPdfAttribute(): bool
+    {
+        return $this->type === 'layout' && $this->file && str_ends_with(strtolower($this->file), '.pdf');
     }
 
     /** Small version of a gallery photo (the full file opens in the viewer). */

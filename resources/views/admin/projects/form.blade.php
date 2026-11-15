@@ -53,7 +53,7 @@
             <tbody>
               @foreach($media as $m)
                 <tr>
-                  <td><span class="badge-a {{ $m->type === 'video' ? 'badge-new' : 'badge-featured' }}">{{ ['video' => 'Video', 'layout' => 'Map image', 'location' => 'Location map'][$m->type] }}</span></td>
+                  <td><span class="badge-a {{ $m->type === 'video' ? 'badge-new' : 'badge-featured' }}">{{ $m->is_pdf ? 'Map PDF' : ['video' => 'Video', 'layout' => 'Map image', 'location' => 'Location map'][$m->type] }}</span></td>
                   <td>{{ $m->title ?: '—' }}</td>
                   <td class="media-src">
                     @if($m->type === 'layout')<a href="/assets/maps/{{ $m->file }}" target="_blank" rel="noopener">{{ $m->file }}</a>
@@ -99,18 +99,18 @@
           {{-- layout image --}}
           <form class="form-a media-add" method="POST" action="{{ route('admin.projects.media.store', $project) }}" enctype="multipart/form-data">
             @csrf <input type="hidden" name="type" value="layout">
-            <div class="media-add-head"><span class="media-add-ico"><i class="fa-solid fa-map"></i></span><div><h4>Add a map image</h4><p>Master plan or layout plan</p></div></div>
+            <div class="media-add-head"><span class="media-add-ico"><i class="fa-solid fa-map"></i></span><div><h4>Add a map</h4><p>Master plan or layout plan &mdash; PDF or image</p></div></div>
             <div class="fld"><label>Title <span class="hint">(optional)</span></label>
               <input type="text" name="title" maxlength="150" placeholder="e.g. Master plan"></div>
-            <div class="fld"><label>Map image</label>
+            <div class="fld"><label>Map file <span class="hint">(PDF recommended)</span></label>
               <div class="upload-drop is-compact">
-                <input type="file" name="layout_file" accept="image/*">
+                <input type="file" name="layout_file" accept="application/pdf,.pdf,image/*">
                 <div class="u-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                 <div class="u-main" data-drop-label>Drag &amp; drop a map, or click to choose</div>
-                <div class="u-hints"><span>JPG</span><span>PNG</span><span>WEBP</span><span>MAX 12 MB</span></div>
+                <div class="u-hints"><span>PDF</span><span>JPG</span><span>PNG</span><span>WEBP</span><span>PDF MAX 20 MB</span></div>
               </div>
               @error('layout_file')<span class="fld-err">{{ $message }}</span>@enderror
-              <span class="fld-help">Visitors can click the map to zoom. Use the sharpest image you have.</span></div>
+              <span class="fld-help"><strong>Upload a PDF if you have one:</strong> a PDF stays perfectly sharp however far visitors zoom in. An image gets blurry when zoomed, so use your sharpest one.</span></div>
             <div class="form-actions"><button type="submit" class="btn-a btn-gold"><i class="fa-solid fa-plus"></i> Add map</button></div>
           </form>
 

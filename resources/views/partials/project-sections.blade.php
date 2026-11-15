@@ -48,12 +48,20 @@
               @php $mTitle = $m->title ?: $p->name . ' map'; $mSrc = '/assets/maps/' . $m->file; @endphp
               <div class="{{ $mcol }}">
                 <figure class="map-card">
+                  @if($m->is_pdf)
+                    <button type="button" class="map-thumb is-pdf" data-map-src="{{ $mSrc }}" data-map-pdf="1" data-map-title="{{ $mTitle }}" aria-label="Open map: {{ $mTitle }}">
+                      <canvas data-pdf-thumb="{{ $mSrc }}" aria-hidden="true"></canvas>
+                      <span class="pdf-fallback"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> {{ $mTitle }}</span>
+                      <span class="pdf-badge"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> PDF</span>
+                    </button>
+                  @else
                   <button type="button" class="map-thumb" data-map-src="{{ $mSrc }}" data-map-title="{{ $mTitle }}" aria-label="Open map: {{ $mTitle }}">
                     <img src="/assets/maps/{{ is_file(public_path('assets/maps/' . $m->thumb_file)) ? $m->thumb_file : $m->file }}" alt="{{ $mTitle }}" loading="lazy" decoding="async">
                   </button>
+                  @endif
                   <figcaption class="map-cap">
                     @if($m->title)<span class="map-cap-title" title="{{ $m->title }}">{{ $m->title }}</span>@endif
-                    <button type="button" class="map-cap-hint" data-map-src="{{ $mSrc }}" data-map-title="{{ $mTitle }}"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i> Click to zoom</button>
+                    <button type="button" class="map-cap-hint" data-map-src="{{ $mSrc }}" @if($m->is_pdf) data-map-pdf="1" @endif data-map-title="{{ $mTitle }}"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i> Click to zoom</button>
                   </figcaption>
                 </figure>
               </div>

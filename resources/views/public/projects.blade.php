@@ -133,7 +133,28 @@
           <h2 class="modal-title h6 fw-bold" id="mapModalTitle">Map</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body"><div class="map-zoom-wrap" id="mapZoomWrap"><img id="mapModalImg" src="" alt=""></div><p class="small text-muted text-center mt-2 mb-0">Click the map to zoom in or out.</p></div>
+        <div class="modal-body">
+          <div class="map-zoom-wrap" id="mapZoomWrap"><img id="mapModalImg" src="" alt=""></div>
+          <p class="small text-muted text-center mt-2 mb-0" id="mapImgHint">Click the map to zoom in or out.</p>
+
+          {{-- PDF map: drawn with PDF.js, re-drawn at every zoom level so it stays sharp --}}
+          <div class="pdfv" id="pdfViewer" hidden>
+            <div class="pdfv-bar">
+              <button type="button" class="pdfv-btn" data-pdf-act="out" aria-label="Zoom out"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+              <span class="pdfv-zoom" id="pdfZoomLabel">100%</span>
+              <button type="button" class="pdfv-btn" data-pdf-act="in" aria-label="Zoom in"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+              <button type="button" class="pdfv-btn pdfv-fit" data-pdf-act="fit"><i class="fa-solid fa-expand" aria-hidden="true"></i> Fit</button>
+              <span class="pdfv-pages" id="pdfPages" hidden>
+                <button type="button" class="pdfv-btn" data-pdf-act="prev" aria-label="Previous page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                <span id="pdfPageLabel">1 / 1</span>
+                <button type="button" class="pdfv-btn" data-pdf-act="next" aria-label="Next page"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+              </span>
+              <a class="pdfv-btn pdfv-open" id="pdfOpen" href="#" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i> Open PDF</a>
+            </div>
+            <div class="pdfv-scroll" id="pdfScroll"><canvas id="pdfCanvas"></canvas><div class="pdfv-msg" id="pdfMsg">Loading map…</div></div>
+            <p class="small text-muted text-center mt-2 mb-0">Use + / &minus;, pinch, or double-click to zoom. Drag to move around the map.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -142,6 +163,7 @@
 
 @push('scripts')
   @if($needsSwiper)<script src="{{ asset_v('/vendor/swiper/swiper-bundle.min.js') }}"></script>@endif
+  @if($projects->contains(fn ($p) => $p->layouts->contains(fn ($m) => $m->is_pdf)))<script src="{{ asset_v('/js/pdf-map.js') }}"></script>@endif
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var btns = document.querySelectorAll('.project-filter-btn');
@@ -284,14 +306,25 @@
         var modal = new bootstrap.Modal(modalEl);
         var img = document.getElementById('mapModalImg');
         var wrap = document.getElementById('mapZoomWrap');
+        var pdfBox = document.getElementById('pdfViewer'), imgHint = document.getElementById('mapImgHint');
         document.querySelectorAll('[data-map-src]').forEach(function (b) {
           b.addEventListener('click', function () {
-            img.src = b.dataset.mapSrc; img.alt = b.dataset.mapTitle;
             document.getElementById('mapModalTitle').textContent = b.dataset.mapTitle;
-            wrap.classList.remove('is-zoomed');
-            modal.show();
+            var isPdf = !!b.dataset.mapPdf;
+            wrap.hidden = isPdf; imgHint.hidden = isPdf; pdfBox.hidden = !isPdf;
+            if (isPdf) {
+              modal.show();
+              // draw once the modal has its real size
+              modalEl.addEventListener('shown.bs.modal', function once() { modalEl.removeEventListener('shown.bs.modal', once); window.PdfMap.open(b.dataset.mapSrc); });
+              if (modalEl.classList.contains('show')) window.PdfMap.open(b.dataset.mapSrc);
+            } else {
+              img.src = b.dataset.mapSrc; img.alt = b.dataset.mapTitle;
+              wrap.classList.remove('is-zoomed');
+              modal.show();
+            }
           });
         });
+        modalEl.addEventListener('hidden.bs.modal', function () { if (window.PdfMap) window.PdfMap.close(); });
         wrap.addEventListener('click', function () { wrap.classList.toggle('is-zoomed'); });
       }
 

@@ -15,7 +15,7 @@ class ProjectMediaController extends Controller
     {
         // An upload bigger than PHP's limits arrives empty with an error code; say so
         // plainly instead of "saving" nothing.
-        foreach (['video_file' => 60, 'layout_file' => 12] as $field => $limitMb) {
+        foreach (['video_file' => 60, 'layout_file' => 20] as $field => $limitMb) {
             $f = $request->file($field);
             if ($f && ! $f->isValid()) {
                 $tooBig = in_array($f->getError(), [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true);
@@ -53,14 +53,24 @@ class ProjectMediaController extends Controller
                 throw ValidationException::withMessages(['video_url' => 'Paste a YouTube link, or upload an MP4/WEBM file.']);
             }
         } elseif ($type === 'layout') {
-            $request->validate(['layout_file' => 'required|image|max:12288'], [
-                'layout_file.required' => 'Choose the map image to upload.',
-                'layout_file.image' => 'The map must be a JPG, PNG or WEBP image.',
-                'layout_file.max' => 'The map image is too large (max 12 MB).',
-            ]);
-            $name = MediaStore::mapImage($request->file('layout_file'), $project->slug.'-'.($title ?: 'map'));
+            // a map can be an image, or a PDF (vector: stays sharp however far the visitor zooms in)
+            $request->validate(['layout_file' => 'required|file'], ['layout_file.required' => 'Choose the map (image or PDF) to upload.']);
+            $upload = $request->file('layout_file');
+
+            if (MediaStore::isPdf($upload)) {
+                $request->validate(['layout_file' => 'max:20480'], ['layout_file.max' => 'The PDF is too large (max 20 MB).']);
+                $name = MediaStore::mapPdf($upload, $project->slug.'-'.($title ?: 'map'));
+                $fail = 'That PDF could not be saved. Please try another file.';
+            } else {
+                $request->validate(['layout_file' => 'image|max:12288'], [
+                    'layout_file.image' => 'The map must be a PDF, or a JPG, PNG or WEBP image.',
+                    'layout_file.max' => 'The map image is too large (max 12 MB).',
+                ]);
+                $name = MediaStore::mapImage($upload, $project->slug.'-'.($title ?: 'map'));
+                $fail = 'That image could not be processed. Please try another file.';
+            }
             if (! $name) {
-                throw ValidationException::withMessages(['layout_file' => 'That image could not be processed. Please try another file.']);
+                throw ValidationException::withMessages(['layout_file' => $fail]);
             }
             $row['file'] = $name;
         } elseif ($type === 'gallery') {

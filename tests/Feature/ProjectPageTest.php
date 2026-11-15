@@ -322,4 +322,40 @@ class ProjectPageTest extends TestCase
     {
         $this->postJson(route('admin.gallery.reorder', $this->project), ['order' => [1]])->assertUnauthorized();
     }
+
+    public function test_admin_can_upload_a_map_as_pdf_and_it_shows_on_the_project_page(): void
+    {
+        $admin = User::factory()->create();
+        $store = route('admin.projects.media.store', $this->project);
+        $pdf = UploadedFile::fake()->createWithContent('master-plan.pdf', "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF");
+
+        $this->actingAs($admin)->post($store, ['type' => 'layout', 'title' => 'Master plan', 'layout_file' => $pdf])->assertSessionHasNoErrors();
+
+        $map = $this->project->media()->where('type', 'layout')->firstOrFail();
+        $this->assertTrue($map->is_pdf);
+        $this->assertNull($map->thumb_file);
+        $this->assertFileExists(public_path('assets/maps/'.$map->file));
+
+        $html = $this->get('/projects')->assertOk()->getContent();
+        $this->assertStringContainsString('data-pdf-thumb="/assets/maps/'.$map->file.'"', $html);
+        $this->assertStringContainsString('data-map-pdf="1"', $html);
+        $this->assertStringContainsString('/js/pdf-map.js', $html);
+        $this->assertFileExists(public_path('vendor/pdfjs/pdf.min.js'));
+        $this->assertFileExists(public_path('vendor/pdfjs/pdf.worker.min.js'));
+
+        $this->actingAs($admin)->get(route('admin.projects.edit', $this->project))->assertOk()->assertSee('Map PDF');
+
+        $this->actingAs($admin)->delete(route('admin.projects.media.destroy', $map))->assertRedirect();
+        $this->assertFileDoesNotExist(public_path('assets/maps/'.$map->file));
+        $this->assertStringNotContainsString('/js/pdf-map.js', $this->get('/projects')->getContent());
+    }
+
+    public function test_a_file_named_pdf_that_is_not_a_pdf_is_rejected(): void
+    {
+        $admin = User::factory()->create();
+        $fake = UploadedFile::fake()->createWithContent('plan.pdf', 'this is just text');
+        $this->actingAs($admin)->post(route('admin.projects.media.store', $this->project), ['type' => 'layout', 'layout_file' => $fake])
+            ->assertSessionHasErrors('layout_file');
+        $this->assertSame(0, $this->project->media()->where('type', 'layout')->count());
+    }
 }

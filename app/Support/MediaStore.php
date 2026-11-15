@@ -278,6 +278,32 @@ class MediaStore
         return $name;
     }
 
+    /**
+     * Store a map uploaded as a PDF, untouched (a PDF is vector, so it stays sharp at any zoom), in
+     * public/assets/maps. The file must really be a PDF (it starts with "%PDF-"). Returns the file name or null.
+     */
+    public static function mapPdf(UploadedFile $file, string $hint = 'map'): ?string
+    {
+        if (! $file->isValid()) {
+            return null;
+        }
+        $head = (string) @file_get_contents($file->getRealPath(), false, null, 0, 5);
+        if ($head !== '%PDF-') {
+            return null;
+        }
+        $dir = public_path('assets/maps');
+        @mkdir($dir, 0775, true);
+        $name = (Str::slug(Str::limit($hint, 40, '')) ?: 'map').'-'.substr(md5(uniqid('', true)), 0, 6).'.pdf';
+
+        return @copy($file->getRealPath(), "$dir/$name") ? $name : null;
+    }
+
+    /** Is this uploaded file a PDF? (judged by its content, not its name) */
+    public static function isPdf(UploadedFile $file): bool
+    {
+        return $file->isValid() && (string) @file_get_contents($file->getRealPath(), false, null, 0, 5) === '%PDF-';
+    }
+
     /** Remove a stored map image or uploaded project video by file name. */
     public static function forgetFile(string $sub, ?string $name): void
     {

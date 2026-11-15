@@ -2713,3 +2713,27 @@ main a.gal-proj-card, main a.gal-proj-card:hover { color: #fff !important; }
 .gal-proj-card .gal-proj-loc { color: var(--primary-gold) !important; }
 a.project-filter-btn { color: var(--text-main) !important; }
 a.project-filter-btn.active, a.project-filter-btn:hover { color: var(--primary-gold) !important; }
+
+/* ===== PDF maps (drawn by /js/pdf-map.js) ===== */
+.map-thumb.is-pdf { position: relative; }
+.map-thumb.is-pdf canvas { display: block; width: 100%; height: auto; max-height: 560px; object-fit: contain; border-radius: 6px; background: #fff; }
+.map-thumb.is-pdf:not(.is-ready) canvas { min-height: 220px; }
+.map-thumb.is-pdf:not(.is-ready):not(.is-failed) canvas { background: linear-gradient(90deg, #f1f1f1, #fafafa, #f1f1f1); background-size: 200% 100%; animation: pdfshimmer 1.4s linear infinite; }
+@keyframes pdfshimmer { to { background-position: -200% 0; } }
+.pdf-fallback { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; gap: 10px; font-weight: 700; color: var(--navy-dark); background: #f6f6f6; border-radius: 6px; padding: 12px; text-align: center; }
+.map-thumb.is-pdf.is-failed .pdf-fallback { display: flex; }
+.map-thumb.is-pdf.is-failed canvas { visibility: hidden; }
+.pdf-badge { position: absolute; top: 10px; left: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #111; color: var(--primary-gold); font-size: .72rem; font-weight: 800; letter-spacing: .5px; }
+
+.pdfv-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.pdfv-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 38px; height: 38px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--border-light); background: #fff; color: var(--navy-dark); font-size: .85rem; font-weight: 700; text-decoration: none; cursor: pointer; transition: var(--transition); }
+.pdfv-btn:hover { background: #111; border-color: #111; color: var(--primary-gold); }
+.pdfv-zoom { min-width: 52px; text-align: center; font-weight: 700; font-size: .85rem; color: var(--navy-dark); }
+.pdfv-pages { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 700; }
+.pdfv-open { margin-left: auto; }
+.pdfv-scroll { position: relative; max-height: 68vh; min-height: 200px; overflow: auto; background: #e9e9e9; border-radius: 8px; cursor: grab; touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch; }
+.pdfv-scroll.is-panning { cursor: grabbing; user-select: none; }
+.pdfv-scroll canvas { display: block; background: #fff; }
+.pdfv-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; color: var(--text-muted); font-weight: 600; pointer-events: none; }
+.pdfv-msg[hidden], .pdfv[hidden], .map-zoom-wrap[hidden] { display: none; }
+@media (max-width: 575.98px) { .pdfv-scroll { max-height: 62vh; } .pdfv-open span, .pdfv-fit { font-size: .8rem; } .pdfv-open { margin-left: 0; } }
