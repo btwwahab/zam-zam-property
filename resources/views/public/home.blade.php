@@ -87,7 +87,7 @@
                 <textarea name="message" class="form-control" rows="2" placeholder="Message (optional)"></textarea>
               </div>
               <button type="submit" class="btn btn-gold w-100 justify-content-center">Send Enquiry <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
-              <a href="https://wa.me/{{ $site->whatsapp }}?text={{ rawurlencode('Hello, I am interested in Zam Zam Orchard farmhouse plots. Please share the latest availability.') }}" target="_blank" rel="noopener" class="btn btn-outline-whatsapp w-100 justify-content-center mt-2"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Get Details on WhatsApp</a>
+              <a href="https://wa.me/{{ $site->whatsapp }}?text={{ rawurlencode('Hello, I am interested in exploring available plots and properties with ' . $site->name . '. Please share the latest availability.') }}" target="_blank" rel="noopener" class="btn btn-outline-whatsapp w-100 justify-content-center mt-2"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Get Details on WhatsApp</a>
               <p class="form-status mt-2 mb-0 small" role="status" aria-live="polite"></p>
             </form>
           </div>
@@ -286,7 +286,7 @@
       <div class="row g-5 g-lg-4 align-items-center">
         <div class="col-lg-6">
           <div class="showcase-media">
-            <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/gated_community_aerial.png" alt="Aerial view of a planned housing society in Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+            <picture><source type="image/webp" srcset="{{ img_srcset('office-building') }}" sizes="(min-width: 992px) 560px, 100vw"><img src="/assets/images/office-building.jpg" alt="{{ $site->name }} office in Al-Falah Model City, Mattital Road, Multan" width="1024" height="572" style="object-position: 65% center;" loading="lazy" decoding="async"></picture>
             <div class="sm-badge">
               <span class="sm-mono">{{ \Illuminate\Support\Str::substr(strtoupper(collect(explode(' ', $site->name))->map(fn($w) => $w[0] ?? '')->join('')), 0, 2) }}</span>
               <span><span class="sm-title d-block">Flagship Projects</span><span class="sm-sub">{{ $navProjects->pluck('name')->join(' • ') }}</span></span>
