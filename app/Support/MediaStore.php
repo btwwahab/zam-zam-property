@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class MediaStore
 {
     /**
-     * Store an uploaded image as <base>.webp + <base>.png + <base>-sm.webp
+     * Store an uploaded image as <base>.webp + <base>-sm.webp (WebP only — no PNG twin, keeps the disk and every page light)
      * in public/assets/images and return the base name (no extension),
      * matching the naming convention the templates expect.
      */
@@ -46,7 +46,6 @@ class MediaStore
         }
 
         imagewebp($src, "$dir/$base.webp", 78);
-        imagepng($src, "$dir/$base.png");
 
         // small variant (max 640w) used by card thumbnails
         $w = imagesx($src);
@@ -71,6 +70,11 @@ class MediaStore
 
     /**
      * Store an uploaded video in public/assets/videos and return the file name.
+     *
+     * Phone / camera clips are huge (100MB+), so when ffmpeg is installed on the server the clip is
+     * re-encoded to a web-friendly H.264 MP4 (max 1280px wide, ~1.5 Mbit/s, moov atom first so it starts
+     * playing before it has fully downloaded). If ffmpeg is missing, fails, times out or makes the file
+     * bigger, the original upload is kept — a video is never lost because of the optimisation.
      */
     public static function video(UploadedFile $file, string $hint = 'hero'): ?string
     {
@@ -78,13 +82,71 @@ class MediaStore
             return null;
         }
         $ext = strtolower($file->getClientOriginalExtension() ?: 'mp4');
+        if (! in_array($ext, ['mp4', 'webm', 'ogg', 'mov', 'm4v'], true)) {
+            return null;
+        }
+        $dir = public_path('assets/videos');
+        @mkdir($dir, 0775, true);
+
+        $ffmpeg = static::ffmpegBinary();
+        if ($ffmpeg) {
+            $base = static::uniqueBase($hint, 'videos', 'mp4');
+            $out = "$dir/$base.mp4";
+            if (static::compressVideo($ffmpeg, $file->getRealPath(), $out) && filesize($out) < $file->getSize()) {
+                return "$base.mp4";
+            }
+            @unlink($out);
+        }
+
+        // keep the original (only formats browsers play natively)
         if (! in_array($ext, ['mp4', 'webm', 'ogg'], true)) {
             return null;
         }
         $base = static::uniqueBase($hint, 'videos', $ext);
-        $file->move(public_path('assets/videos'), "$base.$ext");
+        $file->move($dir, "$base.$ext");
 
         return "$base.$ext";
+    }
+
+    /** Path of the ffmpeg binary, or null when it is not installed / exec() is disabled. */
+    public static function ffmpegBinary(): ?string
+    {
+        static $bin = false;
+        if ($bin !== false) {
+            return $bin;
+        }
+        $bin = null;
+        if (! function_exists('proc_open') || ! function_exists('exec')) {
+            return null;
+        }
+        foreach (['/usr/bin/ffmpeg', '/usr/local/bin/ffmpeg', '/opt/homebrew/bin/ffmpeg'] as $p) {
+            if (is_executable($p)) {
+                return $bin = $p;
+            }
+        }
+
+        return null;
+    }
+
+    private static function compressVideo(string $ffmpeg, string $in, string $out): bool
+    {
+        @set_time_limit(0);
+        try {
+            $p = new \Symfony\Component\Process\Process([
+                $ffmpeg, '-y', '-i', $in,
+                '-vf', "scale='min(1280,iw)':-2",
+                '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '28', '-pix_fmt', 'yuv420p',
+                '-c:a', 'aac', '-b:a', '96k',
+                '-movflags', '+faststart',
+                $out,
+            ]);
+            $p->setTimeout(600);
+            $p->run();
+
+            return $p->isSuccessful() && is_file($out) && filesize($out) > 0;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -216,5 +278,40 @@ class MediaStore
                 }
             }
         }
+    }
+
+    /**
+     * Uploads used to be stored as WebP + a heavy PNG twin. The site only ever serves the WebP now, so
+     * remove the leftover PNG twins of uploaded images (seed art / protected assets are never touched).
+     * Returns [files, bytes] removed (or that would be removed when $dry is true).
+     */
+    public static function prunePngTwins(bool $dry = true, ?callable $each = null): array
+    {
+        $dir = public_path('assets/images');
+        $files = 0;
+        $bytes = 0;
+        foreach (glob("$dir/*.png") ?: [] as $png) {
+            $base = basename($png, '.png');
+            $protected = false;
+            foreach (self::PROTECTED_PREFIXES as $p) {
+                if (str_starts_with($base, $p)) {
+                    $protected = true;
+                    break;
+                }
+            }
+            if ($protected || str_starts_with($base, 'logo') || ! is_file("$dir/$base.webp")) {
+                continue;
+            }
+            $files++;
+            $bytes += (int) filesize($png);
+            if ($each) {
+                $each(basename($png), (int) filesize($png));
+            }
+            if (! $dry) {
+                @unlink($png);
+            }
+        }
+
+        return [$files, $bytes];
     }
 }

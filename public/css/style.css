@@ -2323,6 +2323,17 @@ main a:not(.btn):not(.nav-link):not(.dropdown-item):not(.text-navy):not(.package
   box-shadow: 0 30px 55px -18px rgba(143, 107, 20, 0.5);
 }
 
+/* Home closing CTA — a real project photo, warm dark wash so the text stays readable */
+.cta-photo { padding: 120px 0; }
+.cta-photo .cta-bg { object-position: 50% 58%; }
+.cta-photo::after {
+  background:
+    radial-gradient(ellipse 70% 90% at 50% 50%, rgba(10, 7, 2, 0.72), rgba(10, 7, 2, 0.35) 70%),
+    linear-gradient(180deg, rgba(8, 6, 2, 0.45) 0%, rgba(8, 6, 2, 0.78) 100%);
+}
+.cta-photo h2 { text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6); }
+@media (max-width: 767.98px) { .cta-photo { padding: 80px 0; } }
+
 /* ==========================================================================
    TEAM CARDS  — Zam Zam style: modern, square photo, gold accent
    ========================================================================== */
@@ -2549,6 +2560,11 @@ main a:not(.btn):not(.nav-link):not(.dropdown-item):not(.text-navy):not(.package
 /* ---------- Featured Projects slider (home) ---------- */
 .project-slider .swiper { overflow: hidden; padding: 6px 4px 14px; margin: 0 -4px; }   /* room for card shadows */
 .project-slider .swiper-slide { height: auto; }
+/* the slider clips overflow, so a lift + big shadow on hover got cut off (hard edge at the top / a pale band at the bottom).
+   Inside the slider: no lift, a gold ring + a soft contained shadow instead. */
+.page-home .project-slider .project-card:hover,
+.project-slider .project-card:hover { transform: none; box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.9), 0 12px 22px -14px rgba(0, 0, 0, 0.4); }
+
 .project-slider .project-card { height: 380px; }
 /* until the library starts: same one/two-up row, so nothing jumps when it initialises */
 .project-slider:not(.is-ready) .swiper-wrapper { display: flex; gap: 24px; }

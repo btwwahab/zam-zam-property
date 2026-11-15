@@ -134,7 +134,7 @@
               @php $img = $p->image ?: 'project-placeholder'; @endphp
               <div class="swiper-slide">
                 <article class="project-card">
-                  <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+                  <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="{{ img_src($img) }}" alt="{{ $p->name }}, {{ $p->location }}" class="project-card-img" width="1024" height="1024" loading="lazy" decoding="async"></picture>
                   <div class="project-card-overlay">
                     <span class="project-tag">{{ $p->tag ?: 'Development' }}</span>
                     <h3 class="fw-bold fs-2 text-white mb-1">{{ $p->name }}</h3>
@@ -221,7 +221,7 @@
         <div class="why-visual" aria-hidden="true">
           @foreach($whyShots as $k => $shot)
             <figure class="why-shot {{ $loop->first ? 'is-active' : '' }}" data-why-shot>
-              <picture><source type="image/webp" srcset="{{ img_srcset($shot['img']) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="/assets/images/{{ $shot['img'] }}.png" alt="" width="1024" height="1024" decoding="async" @if(!$loop->first) loading="lazy" @endif></picture>
+              <picture><source type="image/webp" srcset="{{ img_srcset($shot['img']) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="{{ img_src($shot['img']) }}" alt="" width="1024" height="1024" decoding="async" @if(!$loop->first) loading="lazy" @endif></picture>
             </figure>
           @endforeach
           <span class="why-corner tl"></span><span class="why-corner br"></span>
@@ -253,7 +253,7 @@
           @php $img = $c->image ?: 'gated_community_aerial'; @endphp
           <div class="col-lg-3 col-md-6">
             <a class="cat-card h-100" href="{{ route('properties') }}?category={{ $c->slug }}">
-              <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 300px, (min-width: 576px) 50vw, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $c->name }} property near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+              <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 300px, (min-width: 576px) 50vw, 100vw"><img src="{{ img_src($img) }}" alt="{{ $c->name }} property near Multan" width="1024" height="1024" loading="lazy" decoding="async"></picture>
               <div class="cat-overlay">
                 <span class="cat-icon"><i class="fa-solid {{ $c->icon }}" aria-hidden="true"></i></span>
                 <h3 class="fw-bold h5">{{ $c->name }}</h3>
@@ -359,8 +359,13 @@
   @endif
 
   {{-- ============ CTA ============ --}}
-  <section class="section-padding cta-band text-white text-center">
-    <picture><source type="image/webp" srcset="{{ img_srcset('gated_community_aerial') }}" sizes="640px"><img class="cta-bg" src="/assets/images/gated_community_aerial.png" alt="" aria-hidden="true" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+  @php
+    // closing banner: a real project photo (Al-Falah, where the office is, else the first project that has one)
+    $ctaProject = $navProjects->firstWhere('slug', 'al-falah-model-city');
+    $ctaImg = ($ctaProject && $ctaProject->image) ? $ctaProject->image : ($navProjects->first(fn ($p) => $p->image)->image ?? 'office-building');
+  @endphp
+  <section class="section-padding cta-band cta-photo text-white text-center">
+    <picture><source type="image/webp" srcset="{{ img_srcset($ctaImg) }}" sizes="100vw"><img class="cta-bg" src="{{ img_src($ctaImg) }}" alt="" aria-hidden="true" width="1600" height="893" loading="lazy" decoding="async"></picture>
     <div class="container">
       <span class="badge-pill-tag gold mb-3"><i class="fa-solid fa-phone" aria-hidden="true"></i> {{ pc('home_cta_badge') }}</span>
       <h2 class="fs-1 fw-bold text-white mb-3">{{ pc('home_cta_heading') }}</h2>

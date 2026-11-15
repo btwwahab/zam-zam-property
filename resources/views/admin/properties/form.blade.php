@@ -150,8 +150,7 @@
       var img = document.createElement('img');
       img.src = it.type === 'new' ? it.url : ('/assets/images/' + it.name + '.webp');
       img.onerror = function () {
-        if (it.type !== 'new' && img.src.endsWith('.webp')) { img.src = '/assets/images/' + it.name + '.png'; }
-        else { img.style.visibility = 'hidden'; }
+        img.style.visibility = 'hidden';
       };
       thumb.appendChild(img);
       row.appendChild(thumb);

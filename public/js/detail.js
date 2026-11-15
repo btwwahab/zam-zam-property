@@ -19,7 +19,7 @@
   }
   function pic(base, alt, cls, small, style, eager) {
     var webp = 'assets/images/' + base + (small ? '-sm' : '') + '.webp';
-    var png = 'assets/images/' + base + '.png';
+    var png = 'assets/images/' + base + '.webp';  // WebP only — no PNG twin is stored any more
     var w = small ? 512 : 1024;
     return '<picture>' +
       '<source type="image/webp" srcset="' + webp + '">' +
@@ -78,7 +78,7 @@
     var base = location.origin + location.pathname.replace(/property-detail\.html$/, '');
     var ld = {
       '@context': 'https://schema.org', '@type': 'Product', name: p.title,
-      image: base + 'assets/images/' + p.image + '.png',
+      image: base + 'assets/images/' + p.image + '.webp',
       description: String(p.description[0]),
       category: 'Real Estate / ' + p.category,
       brand: { '@type': 'Brand', name: 'Zam Zam Estate' },

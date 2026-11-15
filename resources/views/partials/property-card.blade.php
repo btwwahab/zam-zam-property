@@ -7,7 +7,7 @@
     <div class="property-thumb-wrap">
       <picture>
         <source type="image/webp" srcset="/assets/images/{{ $img }}-sm.webp">
-        <img src="/assets/images/{{ $img }}.png" alt="{{ $p->title }}" class="property-thumb" width="512" height="512" loading="lazy" decoding="async">
+        <img src="{{ img_src($img) }}" alt="{{ $p->title }}" class="property-thumb" width="512" height="512" loading="lazy" decoding="async">
       </picture>
       <div class="property-badges">
         @if($p->is_sold)

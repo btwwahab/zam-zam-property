@@ -119,3 +119,20 @@ if (! function_exists('img_srcset')) {
         return "$sm 640w, $full {$widths[$base]}w";
     }
 }
+
+if (! function_exists('img_src')) {
+    /**
+     * URL for a plain <img src> of an image in public/assets/images. Uploads are stored as WebP only,
+     * so prefer <base>.webp; older seeded art may still have just a .png/.jpg.
+     */
+    function img_src(string $base): string
+    {
+        foreach (['webp', 'png', 'jpg', 'jpeg'] as $ext) {
+            if (is_file(public_path("assets/images/{$base}.{$ext}"))) {
+                return "/assets/images/{$base}.{$ext}";
+            }
+        }
+
+        return "/assets/images/{$base}.webp";
+    }
+}

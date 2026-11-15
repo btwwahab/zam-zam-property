@@ -8,7 +8,7 @@
     @if($m->image)
       <picture>
         <source type="image/webp" srcset="/assets/images/{{ $m->image }}.webp">
-        <img src="/assets/images/{{ $m->image }}.png" alt="{{ $m->name }}" width="600" height="600" loading="lazy" decoding="async" onerror="this.closest('picture').remove()">
+        <img src="{{ img_src($m->image) }}" alt="{{ $m->name }}" width="600" height="600" loading="lazy" decoding="async" onerror="this.closest('picture').remove()">
       </picture>
     @endif
   </div>

@@ -27,7 +27,7 @@
 
   function pic(base, alt, cls, small) {
     var webp = 'assets/images/' + base + (small ? '-sm' : '') + '.webp';
-    var png = 'assets/images/' + base + '.png';
+    var png = 'assets/images/' + base + '.webp';  // WebP only — no PNG twin is stored any more
     var w = small ? 512 : 1024;
     return '<picture>' +
       '<source type="image/webp" srcset="' + webp + '">' +

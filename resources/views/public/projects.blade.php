@@ -65,7 +65,7 @@
               <div class="row g-0 align-items-stretch">
                 <div class="col-lg-6 {{ $flip ? 'order-lg-2' : '' }}">
                   <div class="project-img-wrapper">
-                    <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="/assets/images/{{ $img }}.png" alt="{{ $p->name }}, {{ $p->location }}" width="1024" height="1024" loading="lazy" decoding="async"></picture>
+                    <picture><source type="image/webp" srcset="{{ img_srcset($img) }}" sizes="(min-width: 992px) 900px, 100vw"><img src="{{ img_src($img) }}" alt="{{ $p->name }}, {{ $p->location }}" width="1024" height="1024" loading="lazy" decoding="async"></picture>
                     <span class="badge-status {{ $isFarm ? 'hot' : 'featured' }} position-absolute top-0 {{ $flip ? 'end-0' : 'start-0' }} m-4">{{ $tag ?: ($isFarm ? 'Farmhouse & Land' : 'Residential & Commercial') }}</span>
                   </div>
                 </div>
